@@ -15,23 +15,46 @@ import (
 )
 
 type Handler struct {
-	DB        *sql.DB
-	Config    *config.Config
-	Templates *template.Template
-	Log       *slog.Logger
+	DB          *sql.DB
+	Config      *config.Config
+	Templates   map[string]*template.Template
+	TemplateDir string
+	Log         *slog.Logger
 }
 
 func New(db *sql.DB, cfg *config.Config, log *slog.Logger, templateDir string) *Handler {
-	tmpl := template.New("").Funcs(view.FuncMap())
-	tmpl = template.Must(tmpl.ParseGlob(filepath.Join(templateDir, "*.html")))
-	tmpl = template.Must(tmpl.ParseGlob(filepath.Join(templateDir, "partials", "*.html")))
-
-	return &Handler{
-		DB:        db,
-		Config:    cfg,
-		Templates: tmpl,
-		Log:       log,
+	h := &Handler{
+		DB:          db,
+		Config:      cfg,
+		TemplateDir: templateDir,
+		Log:         log,
 	}
+	h.Templates = h.parseTemplates()
+	return h
+}
+
+func (h *Handler) parseTemplates() map[string]*template.Template {
+	templates := make(map[string]*template.Template)
+
+	partials := filepath.Join(h.TemplateDir, "partials", "*.html")
+	layout := filepath.Join(h.TemplateDir, "layout.html")
+
+	pages, err := filepath.Glob(filepath.Join(h.TemplateDir, "*.html"))
+	if err != nil {
+		panic(err)
+	}
+
+	for _, page := range pages {
+		name := filepath.Base(page)
+		if name == "layout.html" {
+			continue
+		}
+		tmpl := template.New("").Funcs(view.FuncMap())
+		tmpl = template.Must(tmpl.ParseGlob(partials))
+		tmpl = template.Must(tmpl.ParseFiles(layout, page))
+		templates[name] = tmpl
+	}
+	return templates
 }
 
 func (h *Handler) render(w http.ResponseWriter, r *http.Request, name string, data map[string]interface{}) {
@@ -49,7 +72,13 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, name string, da
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.Templates.ExecuteTemplate(w, name, data); err != nil {
+	tmpl, ok := h.Templates[name]
+	if !ok {
+		h.Log.Error("template not found", "template", name)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
 		h.Log.Error("template render error", "template", name, "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
