@@ -16,7 +16,11 @@ type ServerConfig struct {
 }
 
 type DBConfig struct {
-	Path string `toml:"path"`
+	Host   string `toml:"host"`
+	Port   int    `toml:"port"`
+	User   string `toml:"user"`
+	Passwd string `toml:"passwd"`
+	DBName string `toml:"dbname"`
 }
 
 type TwitterConfig struct {
@@ -33,8 +37,17 @@ func Load(path string) (*Config, error) {
 	if cfg.Server.Port == 0 {
 		cfg.Server.Port = 8080
 	}
-	if cfg.DB.Path == "" {
-		cfg.DB.Path = "db/pcgw.db"
+	if cfg.DB.Host == "" {
+		cfg.DB.Host = "127.0.0.1"
+	}
+	if cfg.DB.Port == 0 {
+		cfg.DB.Port = 3306
+	}
+	if cfg.DB.User == "" {
+		cfg.DB.User = "pcgw"
+	}
+	if cfg.DB.DBName == "" {
+		cfg.DB.DBName = "pcgw"
 	}
 	return &cfg, nil
 }

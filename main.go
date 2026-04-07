@@ -28,7 +28,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	database, err := db.Open(cfg.DB.Path)
+	database, err := db.Open(db.Config{
+		User:   cfg.DB.User,
+		Passwd: cfg.DB.Passwd,
+		Host:   cfg.DB.Host,
+		Port:   cfg.DB.Port,
+		DBName: cfg.DB.DBName,
+	})
 	if err != nil {
 		log.Error("failed to open database", "error", err)
 		os.Exit(1)

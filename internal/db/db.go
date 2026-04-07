@@ -2,16 +2,34 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/go-sql-driver/mysql"
 )
 
-func Open(path string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", path+"?_journal_mode=WAL&_busy_timeout=10000")
+type Config struct {
+	User   string
+	Passwd string
+	Host   string
+	Port   int
+	DBName string
+}
+
+func Open(cfg Config) (*sql.DB, error) {
+	mc := mysql.NewConfig()
+	mc.User = cfg.User
+	mc.Passwd = cfg.Passwd
+	mc.Net = "tcp"
+	mc.Addr = fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	mc.DBName = cfg.DBName
+	mc.ParseTime = true
+	mc.MultiStatements = true
+
+	db, err := sql.Open("mysql", mc.FormatDSN())
 	if err != nil {
 		return nil, err
 	}
-	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+	if err := db.Ping(); err != nil {
 		db.Close()
 		return nil, err
 	}

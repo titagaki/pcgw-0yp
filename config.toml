@@ -3,7 +3,11 @@ port = 8080
 session_secret = "change-me-to-a-random-string"
 
 [db]
-path = "db/pcgw.db"
+host = "127.0.0.1"
+port = 3306
+user = "pcgw"
+passwd = "pcgw"
+dbname = "pcgw"
 
 [twitter]
 client_id = ""

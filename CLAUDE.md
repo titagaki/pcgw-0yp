@@ -9,17 +9,16 @@ Ruby/Sinatra 製の [pcgw](/home/megan/src/pcgw) を Go に移植したもの。
 ## ビルド・実行
 
 ```bash
+docker compose up -d           # MySQL起動
 go build -o pcgw-0yp .        # ビルド
 go vet ./...                   # 静的解析
 ./pcgw-0yp                     # 起動 (config.toml を読み込み)
 ./pcgw-0yp /path/to/config.toml
 ```
 
-CGO が必要 (go-sqlite3)。`CGO_ENABLED=1` を確認すること。
-
 ## 技術スタック
 
-- Go 1.22+ / chi v5 / html/template / SQLite3 (mattn/go-sqlite3)
+- Go 1.22+ / chi v5 / html/template / MySQL 8.0 (go-sql-driver/mysql)
 - 認証: Twitter OAuth2 (golang.org/x/oauth2)
 - セッション: gorilla/sessions (cookie, 30日)
 - PeerCast通信: peercast-mi JSON-RPC 2.0 (internal/peercast/client.go)
@@ -28,7 +27,7 @@ CGO が必要 (go-sqlite3)。`CGO_ENABLED=1` を確認すること。
 ## ディレクトリ構成
 
 - `internal/config/` - TOML設定読み込み
-- `internal/db/` - DB接続・スキーマ (SQLite WAL, FK有効)
+- `internal/db/` - DB接続・スキーマ (MySQL, InnoDB)
 - `internal/model/` - データアクセス層 (関数ベース, `func XxxModel(db *sql.DB, ...) error`)
 - `internal/peercast/` - peercast-mi JSON-RPCクライアント
 - `internal/handler/` - HTTPハンドラー (`Handler` 構造体のメソッド)
