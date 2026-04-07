@@ -1,0 +1,99 @@
+package channel
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+type ShowData struct {
+	Channel     *model.Channel
+	ChannelInfo *model.ChannelInfo
+	Servent     *model.Servent
+	Status      *StatusData
+	PushURL     string
+}
+
+type StatusData struct {
+	Status      *peercast.ChannelStatus
+	Connections []peercast.Connection
+}
+
+templ Show(pd view.PageData, d ShowData) {
+	@view.Layout(pd) {
+		<h1 class="title">チャンネル</h1>
+		if d.ChannelInfo != nil {
+			<div class="box">
+				<h2 class="subtitle">{ d.ChannelInfo.Channel }</h2>
+				<table class="table">
+					<tr><th>ジャンル</th><td>{ d.ChannelInfo.Genre }</td></tr>
+					<tr><th>説明</th><td>{ d.ChannelInfo.Description }</td></tr>
+					<tr><th>コメント</th><td>{ d.ChannelInfo.Comment }</td></tr>
+					<tr>
+						<th>URL</th>
+						<td>
+							if d.ChannelInfo.URL != "" {
+								<a href={ templ.SafeURL(d.ChannelInfo.URL) } target="_blank" rel="noopener">{ d.ChannelInfo.URL }</a>
+							}
+						</td>
+					</tr>
+				</table>
+			</div>
+		}
+		<div class="box">
+			<h2 class="subtitle">配信情報</h2>
+			<table class="table">
+				<tr><th>チャンネルID</th><td><code>{ d.Channel.GnuID }</code></td></tr>
+				<tr><th>RTMP配信先</th><td><code>{ d.PushURL }</code></td></tr>
+				if d.Servent != nil {
+					<tr><th>サーバー</th><td>{ d.Servent.Name }</td></tr>
+				}
+				<tr><th>開始時刻</th><td>{ view.FormatTime(d.Channel.CreatedAt) }</td></tr>
+			</table>
+		</div>
+		if d.Status != nil {
+			<div class="box">
+				<h2 class="subtitle">ステータス</h2>
+				<table class="table">
+					<tr><th>状態</th><td><span class={ "tag", "is-" + view.StatusClass(d.Status.Status.Status) }>{ d.Status.Status.Status }</span></td></tr>
+					<tr><th>稼働時間</th><td>{ view.UptimeFmt(d.Status.Status.Uptime) }</td></tr>
+					if d.Status.Status.IsBroadcasting {
+						<tr><th>ビットレート</th><td>-</td></tr>
+					}
+					<tr><th>リレー</th><td>{ fmt.Sprintf("%d / %d", d.Status.Status.LocalRelays, d.Status.Status.TotalRelays) }</td></tr>
+					<tr><th>リスナー</th><td>{ fmt.Sprintf("%d / %d", d.Status.Status.LocalDirects, d.Status.Status.TotalDirects) }</td></tr>
+				</table>
+				if len(d.Status.Connections) > 0 {
+					<h3 class="subtitle is-5">接続</h3>
+					<table class="table is-fullwidth is-hoverable">
+						<thead>
+							<tr><th>ID</th><th>種別</th><th>状態</th><th>プロトコル</th><th>リモート</th><th>送信(B/s)</th></tr>
+						</thead>
+						<tbody>
+							for _, conn := range d.Status.Connections {
+								<tr>
+									<td>{ fmt.Sprint(conn.ConnectionID) }</td>
+									<td>{ conn.Type }</td>
+									<td>{ conn.Status }</td>
+									<td>{ conn.ProtocolName }</td>
+									<td>{ conn.RemoteEndPoint }</td>
+									<td>{ fmt.Sprint(conn.SendRate) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</div>
+		}
+		<div class="buttons">
+			<a class="button" href={ templ.SafeURL(fmt.Sprintf("/channels/%d/edit", d.Channel.ID)) }>編集</a>
+			<a class="button" href={ templ.SafeURL(fmt.Sprintf("/channels/%d/relay_tree", d.Channel.ID)) }>リレーツリー</a>
+			<a class="button" href={ templ.SafeURL(fmt.Sprintf("/channels/%d/connections", d.Channel.ID)) }>接続一覧</a>
+			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/channels/%d/stop", d.Channel.ID)) } style="display:inline">
+				<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+				<button class="button is-danger" type="submit" onclick="return confirm('配信を停止しますか？')">配信停止</button>
+			</form>
+		</div>
+	}
+}

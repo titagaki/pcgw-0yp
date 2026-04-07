@@ -1,0 +1,23 @@
+package page
+
+import "github.com/titagaki/pcgw-0yp/internal/view"
+
+templ Login(pd view.PageData, backref string) {
+	@view.Layout(pd) {
+		<div class="columns is-centered">
+			<div class="column is-4">
+				<h1 class="title">ログイン</h1>
+				<a class="button is-info is-fullwidth" href={ templ.SafeURL("/auth/twitter" + loginBackref(backref)) }>
+					Twitterでログイン
+				</a>
+			</div>
+		</div>
+	}
+}
+
+func loginBackref(backref string) string {
+	if backref != "" {
+		return "?backref=" + backref
+	}
+	return ""
+}

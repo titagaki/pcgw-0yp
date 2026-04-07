@@ -1,0 +1,28 @@
+package profile
+
+import (
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Edit(pd view.PageData, profileUser *model.User) {
+	@view.Layout(pd) {
+		<h1 class="title">プロフィール編集</h1>
+		<form method="post" action="/profile/edit">
+			<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+			<div class="field">
+				<label class="label">名前</label>
+				<div class="control"><input class="input" type="text" name="name" value={ profileUser.Name } required/></div>
+			</div>
+			<div class="field">
+				<label class="label">自己紹介 (160文字以内)</label>
+				<div class="control"><textarea class="textarea" name="bio" maxlength="160">{ profileUser.Bio }</textarea></div>
+			</div>
+			<div class="field">
+				<div class="control">
+					<button class="button is-primary" type="submit">更新</button>
+				</div>
+			</div>
+		</form>
+	}
+}

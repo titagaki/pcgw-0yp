@@ -1,0 +1,49 @@
+package page
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+type ServentStatus struct {
+	Servent  *model.Servent
+	Channels []peercast.ChannelEntry
+	Error    error
+}
+
+templ Stats(pd view.PageData, statuses []ServentStatus) {
+	@view.Layout(pd) {
+		<h1 class="title">統計</h1>
+		for _, ss := range statuses {
+			<div class="box">
+				<h2 class="subtitle">{ ss.Servent.Name }</h2>
+				if ss.Error != nil {
+					<div class="notification is-danger is-light">接続エラー: { ss.Error.Error() }</div>
+				} else if len(ss.Channels) > 0 {
+					<table class="table is-fullwidth is-hoverable">
+						<thead><tr><th>チャンネル名</th><th>ジャンル</th><th>ビットレート</th><th>状態</th><th>リレー</th><th>リスナー</th></tr></thead>
+						<tbody>
+							for _, ch := range ss.Channels {
+								<tr>
+									<td>{ ch.Info.Name }</td>
+									<td>{ ch.Info.Genre }</td>
+									<td>{ fmt.Sprintf("%d kbps", ch.Info.Bitrate) }</td>
+									<td><span class={ "tag", "is-" + view.StatusClass(ch.Status.Status) }>{ ch.Status.Status }</span></td>
+									<td>{ fmt.Sprint(ch.Status.TotalRelays) }</td>
+									<td>{ fmt.Sprint(ch.Status.TotalDirects) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				} else {
+					<p>配信中のチャンネルはありません。</p>
+				}
+			</div>
+		}
+		if len(statuses) == 0 {
+			<p>有効なサーバーがありません。</p>
+		}
+	}
+}

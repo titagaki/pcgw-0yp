@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	profileview "github.com/titagaki/pcgw-0yp/internal/view/profile"
 )
 
 func (h *Handler) ProfileList(w http.ResponseWriter, r *http.Request) {
@@ -22,11 +23,8 @@ func (h *Handler) ProfileList(w http.ResponseWriter, r *http.Request) {
 	} else {
 		users, _ = model.ListActiveUsers(h.DB, 30)
 	}
-	data := map[string]interface{}{
-		"Users": users,
-		"Query": query,
-	}
-	h.render(w, r, "profiles.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, profileview.List(pd, users, query))
 }
 
 func (h *Handler) ProfileShow(w http.ResponseWriter, r *http.Request) {
@@ -45,21 +43,14 @@ func (h *Handler) ProfileShow(w http.ResponseWriter, r *http.Request) {
 	recentInfos, _ := model.ListChannelInfosByUser(h.DB, user.ID, 20)
 	channels, _ := model.ListChannelsByUser(h.DB, user.ID)
 
-	data := map[string]interface{}{
-		"ProfileUser": user,
-		"RecentInfos": recentInfos,
-		"Channels":    channels,
-	}
-	h.render(w, r, "profile.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, profileview.Show(pd, user, channels, recentInfos))
 }
 
 func (h *Handler) ProfileEdit(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
-	data := map[string]interface{}{
-		"ProfileUser": user,
-		"Flashes":     h.getFlashes(r, w),
-	}
-	h.render(w, r, "profile_edit.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, profileview.Edit(pd, user))
 }
 
 func (h *Handler) ProfileUpdate(w http.ResponseWriter, r *http.Request) {

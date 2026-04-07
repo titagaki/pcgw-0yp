@@ -1,0 +1,82 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ ServentShow(pd view.PageData, s *model.Servent, channels []peercast.ChannelEntry) {
+	@view.Layout(pd) {
+		<h1 class="title">{ s.Name }</h1>
+		<div class="box">
+			<form method="post" action={ templ.SafeURL(fmt.Sprintf("/servents/%d", s.ID)) }>
+				<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+				<div class="columns">
+					<div class="column"><div class="field"><label class="label">名前</label><div class="control"><input class="input" type="text" name="name" value={ s.Name } required/></div></div></div>
+					<div class="column"><div class="field"><label class="label">ホスト名</label><div class="control"><input class="input" type="text" name="hostname" value={ s.Hostname } required/></div></div></div>
+					<div class="column is-narrow"><div class="field"><label class="label">ポート</label><div class="control"><input class="input" type="number" name="port" value={ fmt.Sprint(s.Port) } required/></div></div></div>
+				</div>
+				<div class="columns">
+					<div class="column"><div class="field"><label class="label">説明</label><div class="control"><input class="input" type="text" name="desc" value={ s.Description }/></div></div></div>
+					<div class="column is-narrow"><div class="field"><label class="label">最大CH</label><div class="control"><input class="input" type="number" name="max_channels" value={ fmt.Sprint(s.MaxChannels) }/></div></div></div>
+					<div class="column is-narrow"><div class="field"><label class="label">優先度</label><div class="control"><input class="input" type="number" name="priority" value={ fmt.Sprint(s.Priority) }/></div></div></div>
+				</div>
+				<div class="columns">
+					<div class="column"><div class="field"><label class="label">認証ID</label><div class="control"><input class="input" type="text" name="auth_id" value={ s.AuthID }/></div></div></div>
+					<div class="column"><div class="field"><label class="label">パスワード</label><div class="control"><input class="input" type="password" name="passwd" value={ s.Passwd }/></div></div></div>
+					<div class="column is-narrow">
+						<div class="field">
+							<label class="label">有効</label>
+							<div class="control mt-2">
+								<label class="checkbox">
+									<input type="checkbox" name="enabled"
+										if s.Enabled {
+											checked
+										}
+									/> 有効
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="buttons">
+					<button class="button is-primary" type="submit">更新</button>
+				</div>
+			</form>
+			<div class="buttons mt-4">
+				<form method="post" action={ templ.SafeURL(fmt.Sprintf("/servents/%d/refresh", s.ID)) } style="display:inline">
+					<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+					<button class="button is-info" type="submit">サーバー情報を取得</button>
+				</form>
+				<form method="post" action={ templ.SafeURL(fmt.Sprintf("/servents/%d/delete", s.ID)) } style="display:inline">
+					<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+					<button class="button is-danger" type="submit" onclick="return confirm('削除しますか？')">削除</button>
+				</form>
+			</div>
+			<table class="table mt-4">
+				<tr><th>エージェント</th><td>{ s.Agent }</td></tr>
+				<tr><th>Yellow Pages</th><td>{ s.YellowPages }</td></tr>
+			</table>
+		</div>
+		if len(channels) > 0 {
+			<div class="box">
+				<h2 class="subtitle">チャンネル</h2>
+				<table class="table is-fullwidth">
+					<thead><tr><th>名前</th><th>状態</th><th>リレー</th><th>リスナー</th></tr></thead>
+					<tbody>
+						for _, ch := range channels {
+							<tr>
+								<td>{ ch.Info.Name }</td>
+								<td><span class={ "tag", "is-" + view.StatusClass(ch.Status.Status) }>{ ch.Status.Status }</span></td>
+								<td>{ fmt.Sprint(ch.Status.TotalRelays) }</td>
+								<td>{ fmt.Sprint(ch.Status.TotalDirects) }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	}
+}

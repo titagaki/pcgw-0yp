@@ -1,0 +1,65 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ UserShow(pd view.PageData, u *model.User) {
+	@view.Layout(pd) {
+		<h1 class="title">{ u.Name }</h1>
+		<table class="table">
+			<tr><th>ID</th><td>{ fmt.Sprint(u.ID) }</td></tr>
+			<tr>
+				<th>Twitter ID</th>
+				<td>
+					if u.TwitterID.Valid {
+						{ u.TwitterID.String }
+					}
+				</td>
+			</tr>
+			<tr><th>Admin</th><td>{ fmt.Sprint(u.Admin) }</td></tr>
+			<tr><th>凍結</th><td>{ fmt.Sprint(u.Suspended) }</td></tr>
+			<tr><th>Bio</th><td>{ u.Bio }</td></tr>
+		</table>
+		<a class="button" href={ templ.SafeURL(fmt.Sprintf("/users/%d/edit", u.ID)) }>編集</a>
+	}
+}
+
+templ UserEdit(pd view.PageData, u *model.User) {
+	@view.Layout(pd) {
+		<h1 class="title">ユーザー編集: { u.Name }</h1>
+		<form method="post" action={ templ.SafeURL(fmt.Sprintf("/users/%d", u.ID)) }>
+			<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+			<div class="field"><label class="label">名前</label><div class="control"><input class="input" type="text" name="name" value={ u.Name }/></div></div>
+			<div class="field"><label class="label">画像URL</label><div class="control"><input class="input" type="text" name="image" value={ u.Image }/></div></div>
+			<div class="field">
+				<label class="checkbox">
+					<input type="checkbox" name="admin"
+						if u.Admin {
+							checked
+						}
+					/> Admin
+				</label>
+			</div>
+			<div class="field">
+				<label class="checkbox">
+					<input type="checkbox" name="suspended"
+						if u.Suspended {
+							checked
+						}
+					/> 凍結
+				</label>
+			</div>
+			<div class="buttons">
+				<button class="button is-primary" type="submit">更新</button>
+				<a class="button" href="/users">戻る</a>
+			</div>
+		</form>
+		<form method="post" action={ templ.SafeURL(fmt.Sprintf("/users/%d/delete", u.ID)) } class="mt-4">
+			<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+			<button class="button is-danger" type="submit" onclick="return confirm('本当に削除しますか？')">ユーザーを削除</button>
+		</form>
+	}
+}

@@ -52,7 +52,7 @@ func main() {
 		SameSite: http.SameSiteLaxMode,
 	}
 
-	h := handler.New(database, cfg, log, "templates")
+	h := handler.New(database, cfg, log)
 	h.StartCleanup()
 
 	sessionMw := middleware.Session(store)

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	noticeview "github.com/titagaki/pcgw-0yp/internal/view/notice"
 )
 
 func (h *Handler) NoticeIndex(w http.ResponseWriter, r *http.Request) {
@@ -17,11 +18,8 @@ func (h *Handler) NoticeIndex(w http.ResponseWriter, r *http.Request) {
 		model.UpdateUserNoticeChecked(h.DB, user.ID)
 	}
 
-	data := map[string]interface{}{
-		"Notices": notices,
-		"Flashes": h.getFlashes(r, w),
-	}
-	h.render(w, r, "notices.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, noticeview.List(pd, notices))
 }
 
 func (h *Handler) NoticeShow(w http.ResponseWriter, r *http.Request) {
@@ -35,14 +33,13 @@ func (h *Handler) NoticeShow(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	data := map[string]interface{}{
-		"Notice": notice,
-	}
-	h.render(w, r, "notice.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, noticeview.Show(pd, notice))
 }
 
 func (h *Handler) NoticeNew(w http.ResponseWriter, r *http.Request) {
-	h.render(w, r, "notice_form.html", nil)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, noticeview.New(pd))
 }
 
 func (h *Handler) NoticeCreate(w http.ResponseWriter, r *http.Request) {
@@ -76,10 +73,8 @@ func (h *Handler) NoticeEdit(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	data := map[string]interface{}{
-		"Notice": notice,
-	}
-	h.render(w, r, "notice_edit.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, noticeview.Edit(pd, notice))
 }
 
 func (h *Handler) NoticeUpdate(w http.ResponseWriter, r *http.Request) {

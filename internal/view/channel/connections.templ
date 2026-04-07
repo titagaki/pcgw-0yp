@@ -1,0 +1,42 @@
+package channel
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Connections(pd view.PageData, ch *model.Channel, conns []peercast.Connection) {
+	@view.Layout(pd) {
+		<h1 class="title">接続一覧</h1>
+		<a class="button mb-4" href={ templ.SafeURL(fmt.Sprintf("/channels/%d", ch.ID)) }>戻る</a>
+		if len(conns) > 0 {
+			<table class="table is-fullwidth is-hoverable">
+				<thead><tr><th>ID</th><th>種別</th><th>状態</th><th>プロトコル</th><th>リモート</th><th>送信(B/s)</th><th></th></tr></thead>
+				<tbody>
+					for _, conn := range conns {
+						<tr>
+							<td>{ fmt.Sprint(conn.ConnectionID) }</td>
+							<td>{ conn.Type }</td>
+							<td>{ conn.Status }</td>
+							<td>{ conn.ProtocolName }</td>
+							<td>{ conn.RemoteEndPoint }</td>
+							<td>{ fmt.Sprint(conn.SendRate) }</td>
+							<td>
+								if conn.Type != "source" && conn.Type != "direct" {
+									<form method="post" action={ templ.SafeURL(fmt.Sprintf("/channels/%d/connections/%d/disconnect", ch.ID, conn.ConnectionID)) } style="display:inline">
+										<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+										<button class="button is-small is-danger is-outlined" type="submit">切断</button>
+									</form>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		} else {
+			<p>接続がありません。</p>
+		}
+	}
+}

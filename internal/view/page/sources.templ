@@ -1,0 +1,41 @@
+package page
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Sources(pd view.PageData, sources []*model.Source) {
+	@view.Layout(pd) {
+		<h1 class="title">ソース管理</h1>
+		if len(sources) > 0 {
+			<table class="table is-fullwidth">
+				<thead><tr><th>名前</th><th>キー</th><th></th></tr></thead>
+				<tbody>
+					for _, s := range sources {
+						<tr>
+							<td>{ s.Name }</td>
+							<td><code>{ s.Key }</code></td>
+							<td>
+								<a class="button is-small" href={ templ.SafeURL(fmt.Sprintf("/sources/regen?id=%d", s.ID)) } onclick="return confirm('キーを再生成しますか？')">再生成</a>
+								<a class="button is-small is-danger is-outlined" href={ templ.SafeURL(fmt.Sprintf("/sources/del?id=%d", s.ID)) } onclick="return confirm('削除しますか？')">削除</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+		<form method="get" action="/sources/add" class="mt-4">
+			<div class="field has-addons">
+				<div class="control is-expanded">
+					<input class="input" type="text" name="name" placeholder="ソース名" required/>
+				</div>
+				<div class="control">
+					<button class="button is-primary" type="submit">追加</button>
+				</div>
+			</div>
+		</form>
+		<p class="help">最大3つまで登録できます。</p>
+	}
+}

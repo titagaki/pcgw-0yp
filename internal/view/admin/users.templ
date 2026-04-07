@@ -1,0 +1,46 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ UserList(pd view.PageData, users []*model.User) {
+	@view.Layout(pd) {
+		<h1 class="title">ユーザー管理</h1>
+		<table class="table is-fullwidth is-hoverable">
+			<thead><tr><th>ID</th><th>名前</th><th>Admin</th><th>凍結</th><th>最終ログイン</th><th></th></tr></thead>
+			<tbody>
+				for _, u := range users {
+					<tr>
+						<td>{ fmt.Sprint(u.ID) }</td>
+						<td>
+							if u.Image != "" {
+								<img class="is-rounded" src={ u.Image } style="width:24px;height:24px;vertical-align:middle"/>
+								{ " " }
+							}
+							{ u.Name }
+						</td>
+						<td>
+							if u.Admin {
+								<span class="tag is-warning">Admin</span>
+							}
+						</td>
+						<td>
+							if u.Suspended {
+								<span class="tag is-danger">凍結</span>
+							}
+						</td>
+						<td>
+							if u.LoggedOnAt.Valid {
+								{ view.FormatTime(u.LoggedOnAt.Time) }
+							}
+						</td>
+						<td><a href={ templ.SafeURL(fmt.Sprintf("/users/%d/edit", u.ID)) }>編集</a></td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+}

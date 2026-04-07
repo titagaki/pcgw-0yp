@@ -1,0 +1,16 @@
+package program
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Index(pd view.PageData, year, month int) {
+	@view.Layout(pd) {
+		<h1 class="title">番組表</h1>
+		<div class="buttons">
+			<a class="button" href="/programs/recent">最近の配信</a>
+			<a class="button" href={ templ.SafeURL(fmt.Sprintf("/programs/by-date/%d/%d", year, month)) }>{ fmt.Sprintf("%d年%d月", year, month) }</a>
+		</div>
+	}
+}

@@ -1,0 +1,41 @@
+package program
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Month(pd view.PageData, year, month int, programs []*model.ChannelInfo) {
+	@view.Layout(pd) {
+		<h1 class="title">{ fmt.Sprintf("%d年%d月", year, month) }</h1>
+		<div class="buttons mb-4">
+			if month > 1 {
+				<a class="button" href={ templ.SafeURL(fmt.Sprintf("/programs/by-date/%d/%d", year, month-1)) }>前月</a>
+			} else {
+				<a class="button" href={ templ.SafeURL(fmt.Sprintf("/programs/by-date/%d/12", year-1)) }>前月</a>
+			}
+			if month < 12 {
+				<a class="button" href={ templ.SafeURL(fmt.Sprintf("/programs/by-date/%d/%d", year, month+1)) }>翌月</a>
+			} else {
+				<a class="button" href={ templ.SafeURL(fmt.Sprintf("/programs/by-date/%d/1", year+1)) }>翌月</a>
+			}
+		</div>
+		if len(programs) > 0 {
+			<table class="table is-fullwidth is-hoverable">
+				<thead><tr><th>チャンネル名</th><th>ジャンル</th><th>日時</th></tr></thead>
+				<tbody>
+					for _, p := range programs {
+						<tr>
+							<td><a href={ templ.SafeURL(fmt.Sprintf("/programs/%d", p.ID)) }>{ p.Channel }</a></td>
+							<td>{ p.Genre }</td>
+							<td>{ view.FormatTime(p.CreatedAt) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		} else {
+			<p>この月の配信はありません。</p>
+		}
+	}
+}

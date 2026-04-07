@@ -1,0 +1,10 @@
+package view
+
+templ Flash(flashes []string) {
+	for _, msg := range flashes {
+		<div class="notification is-info is-light">
+			<button class="delete"></button>
+			{ msg }
+		</div>
+	}
+}

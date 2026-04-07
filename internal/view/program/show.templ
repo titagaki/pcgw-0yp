@@ -1,0 +1,44 @@
+package program
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Show(pd view.PageData, p *model.ChannelInfo, programUser *model.User) {
+	@view.Layout(pd) {
+		<h1 class="title">{ p.Channel }</h1>
+		<div class="box">
+			<table class="table">
+				<tr>
+					<th>配信者</th>
+					<td>
+						if programUser != nil {
+							<a href={ templ.SafeURL(fmt.Sprintf("/profile/%d", programUser.ID)) }>{ programUser.Name }</a>
+						}
+					</td>
+				</tr>
+				<tr><th>ジャンル</th><td>{ p.Genre }</td></tr>
+				<tr><th>説明</th><td>{ p.Description }</td></tr>
+				<tr><th>コメント</th><td>{ p.Comment }</td></tr>
+				<tr>
+					<th>URL</th>
+					<td>
+						if p.URL != "" {
+							<a href={ templ.SafeURL(p.URL) } target="_blank" rel="noopener">{ p.URL }</a>
+						}
+					</td>
+				</tr>
+				<tr><th>種別</th><td>{ p.StreamType }</td></tr>
+				<tr><th>YP</th><td>{ p.YP }</td></tr>
+				<tr><th>開始</th><td>{ view.FormatTime(p.CreatedAt) }</td></tr>
+				if p.TerminatedAt.Valid {
+					<tr><th>終了</th><td>{ view.FormatTime(p.TerminatedAt.Time) }</td></tr>
+				} else {
+					<tr><th>状態</th><td><span class="tag is-success">配信中</span></td></tr>
+				}
+			</table>
+		</div>
+	}
+}

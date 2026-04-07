@@ -5,6 +5,7 @@ import (
 
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view/page"
 )
 
 func (h *Handler) TopPage(w http.ResponseWriter, r *http.Request) {
@@ -12,23 +13,20 @@ func (h *Handler) TopPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/home", http.StatusFound)
 		return
 	}
-	h.render(w, r, "top.html", nil)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, page.Top(pd))
 }
 
 func (h *Handler) DescPage(w http.ResponseWriter, r *http.Request) {
-	h.render(w, r, "desc.html", nil)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, page.Desc(pd))
 }
 
 func (h *Handler) HomePage(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
-
 	channels, _ := model.ListChannelsByUser(h.DB, user.ID)
 	recentInfos, _ := model.ListChannelInfosByUser(h.DB, user.ID, 10)
 
-	data := map[string]interface{}{
-		"Channels":    channels,
-		"RecentInfos": recentInfos,
-		"Flashes":     h.getFlashes(r, w),
-	}
-	h.render(w, r, "home.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, page.Home(pd, channels, recentInfos))
 }

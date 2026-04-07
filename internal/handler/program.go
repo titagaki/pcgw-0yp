@@ -7,23 +7,19 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	programview "github.com/titagaki/pcgw-0yp/internal/view/program"
 )
 
 func (h *Handler) ProgramIndex(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
-	data := map[string]interface{}{
-		"Year":  now.Year(),
-		"Month": int(now.Month()),
-	}
-	h.render(w, r, "programs.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, programview.Index(pd, now.Year(), int(now.Month())))
 }
 
 func (h *Handler) ProgramRecent(w http.ResponseWriter, r *http.Request) {
 	infos, _ := model.ListRecentChannelInfos(h.DB, 20)
-	data := map[string]interface{}{
-		"Programs": infos,
-	}
-	h.render(w, r, "programs_recent.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, programview.Recent(pd, infos))
 }
 
 func (h *Handler) ProgramByMonth(w http.ResponseWriter, r *http.Request) {
@@ -40,20 +36,8 @@ func (h *Handler) ProgramByMonth(w http.ResponseWriter, r *http.Request) {
 
 	infos, _ := model.ListChannelInfosByMonth(h.DB, year, month)
 
-	// Group by day
-	byDay := make(map[int][]*model.ChannelInfo)
-	for _, ci := range infos {
-		day := ci.CreatedAt.Day()
-		byDay[day] = append(byDay[day], ci)
-	}
-
-	data := map[string]interface{}{
-		"Year":     year,
-		"Month":    month,
-		"Programs": infos,
-		"ByDay":    byDay,
-	}
-	h.render(w, r, "program_month.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, programview.Month(pd, year, month, infos))
 }
 
 func (h *Handler) ProgramShow(w http.ResponseWriter, r *http.Request) {
@@ -71,11 +55,8 @@ func (h *Handler) ProgramShow(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := model.GetUser(h.DB, ci.UserID)
 
-	data := map[string]interface{}{
-		"Program":     ci,
-		"ProgramUser": user,
-	}
-	h.render(w, r, "program.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, programview.Show(pd, ci, user))
 }
 
 func (h *Handler) ProgramDelete(w http.ResponseWriter, r *http.Request) {

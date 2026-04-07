@@ -1,0 +1,45 @@
+package profile
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ List(pd view.PageData, users []*model.User, query string) {
+	@view.Layout(pd) {
+		<h1 class="title">ユーザー</h1>
+		<form method="get" action="/profile" class="mb-4">
+			<div class="field has-addons">
+				<div class="control is-expanded">
+					<input class="input" type="text" name="query" value={ query } placeholder="ユーザー名で検索"/>
+				</div>
+				<div class="control">
+					<button class="button is-info" type="submit">検索</button>
+				</div>
+			</div>
+		</form>
+		if len(users) > 0 {
+			<div class="columns is-multiline">
+				for _, u := range users {
+					<div class="column is-3">
+						<div class="card">
+							<div class="card-content">
+								<div class="media">
+									if u.Image != "" {
+										<div class="media-left"><figure class="image is-48x48"><img class="is-rounded" src={ u.Image }/></figure></div>
+									}
+									<div class="media-content">
+										<p class="title is-5"><a href={ templ.SafeURL(fmt.Sprintf("/profile/%d", u.ID)) }>{ u.Name }</a></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		} else {
+			<p>ユーザーが見つかりません。</p>
+		}
+	}
+}

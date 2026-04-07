@@ -1,0 +1,10 @@
+package view
+
+import (
+	"html/template"
+	"strings"
+)
+
+templ Nl2br(text string) {
+	@templ.Raw(strings.ReplaceAll(template.HTMLEscapeString(text), "\n", "<br>"))
+}

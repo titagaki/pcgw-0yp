@@ -1,0 +1,39 @@
+package view
+
+import "github.com/titagaki/pcgw-0yp/internal/model"
+
+type PageData struct {
+	User             *model.User
+	LoggedIn         bool
+	CSRFToken        string
+	HasUnreadNotices bool
+	Flashes          []string
+}
+
+templ Layout(pd PageData) {
+	<!DOCTYPE html>
+	<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<title>PeerCast Gateway</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"/>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+		<link rel="stylesheet" href="/public/css/style.css"/>
+	</head>
+	<body>
+		@Navbar(pd)
+		<section class="section">
+			<div class="container">
+				@Flash(pd.Flashes)
+				{ children... }
+			</div>
+		</section>
+		<footer class="footer">
+			<div class="content has-text-centered">
+				<p>PeerCast Gateway</p>
+			</div>
+		</footer>
+	</body>
+	</html>
+}

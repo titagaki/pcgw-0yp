@@ -9,15 +9,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
-	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	channelview "github.com/titagaki/pcgw-0yp/internal/view/channel"
 )
 
 func (h *Handler) ChannelList(w http.ResponseWriter, r *http.Request) {
 	channels, _ := model.ListChannels(h.DB)
-	data := map[string]interface{}{
-		"Channels": channels,
-	}
-	h.render(w, r, "channels.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, channelview.List(pd, channels))
 }
 
 func (h *Handler) ChannelShow(w http.ResponseWriter, r *http.Request) {
@@ -42,36 +40,29 @@ func (h *Handler) ChannelShow(w http.ResponseWriter, r *http.Request) {
 	servent, _ := model.GetServent(h.DB, ch.ServentID)
 	channelInfo, _ := model.GetChannelInfoByChannelID(h.DB, ch.ID)
 
-	var status *statusData
+	var status *channelview.StatusData
 	if servent != nil {
 		client := h.peercastClient(servent)
 		if cs, err := client.GetChannelStatus(ch.GnuID); err == nil {
 			conns, _ := client.GetChannelConnections(ch.GnuID)
-			status = &statusData{
+			status = &channelview.StatusData{
 				Status:      cs,
 				Connections: conns,
 			}
-			// Update last active
 			if cs.IsReceiving {
 				model.UpdateChannelLastActive(h.DB, ch.ID)
 			}
 		}
 	}
 
-	data := map[string]interface{}{
-		"Channel":     ch,
-		"ChannelInfo": channelInfo,
-		"Servent":     servent,
-		"Status":      status,
-		"PushURL":     buildRTMPPushURL(servent.Hostname, 1935, ch.StreamKey),
-		"Flashes":     h.getFlashes(r, w),
-	}
-	h.render(w, r, "channel.html", data)
-}
-
-type statusData struct {
-	Status      *peercast.ChannelStatus
-	Connections []peercast.Connection
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, channelview.Show(pd, channelview.ShowData{
+		Channel:     ch,
+		ChannelInfo: channelInfo,
+		Servent:     servent,
+		Status:      status,
+		PushURL:     buildRTMPPushURL(servent.Hostname, 1935, ch.StreamKey),
+	}))
 }
 
 func (h *Handler) ChannelUpdate(w http.ResponseWriter, r *http.Request) {
@@ -152,12 +143,8 @@ func (h *Handler) ChannelEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	channelInfo, _ := model.GetChannelInfoByChannelID(h.DB, ch.ID)
-
-	data := map[string]interface{}{
-		"Channel":     ch,
-		"ChannelInfo": channelInfo,
-	}
-	h.render(w, r, "channel_edit.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, channelview.Edit(pd, ch, channelInfo))
 }
 
 func (h *Handler) ChannelStop(w http.ResponseWriter, r *http.Request) {
@@ -184,11 +171,9 @@ func (h *Handler) ChannelStop(w http.ResponseWriter, r *http.Request) {
 	if servent != nil {
 		client := h.peercastClient(servent)
 		client.StopChannel(ch.GnuID)
-		// Revoke stream key
 		client.RevokeStreamKey(fmt.Sprintf("user_%d", ch.UserID))
 	}
 
-	// Delete channel record (also terminates channel_info)
 	model.DeleteChannel(h.DB, ch.ID)
 
 	h.flash(w, r, "配信を停止しました")
@@ -221,11 +206,8 @@ func (h *Handler) ChannelRelayTree(w http.ResponseWriter, r *http.Request) {
 		tree = nil
 	}
 
-	data := map[string]interface{}{
-		"Channel":   ch,
-		"RelayTree": tree,
-	}
-	h.render(w, r, "relay_tree.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, channelview.RelayTree(pd, ch, tree))
 }
 
 func (h *Handler) ChannelConnections(w http.ResponseWriter, r *http.Request) {
@@ -253,11 +235,8 @@ func (h *Handler) ChannelConnections(w http.ResponseWriter, r *http.Request) {
 		h.Log.Error("getChannelConnections failed", "error", err)
 	}
 
-	data := map[string]interface{}{
-		"Channel":     ch,
-		"Connections": conns,
-	}
-	h.render(w, r, "connections.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, channelview.Connections(pd, ch, conns))
 }
 
 func (h *Handler) ChannelDisconnect(w http.ResponseWriter, r *http.Request) {

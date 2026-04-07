@@ -9,15 +9,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/model"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	adminview "github.com/titagaki/pcgw-0yp/internal/view/admin"
 )
 
 func (h *Handler) ServentIndex(w http.ResponseWriter, r *http.Request) {
 	servents, _ := model.ListServents(h.DB)
-	data := map[string]interface{}{
-		"Servents": servents,
-		"Flashes":  h.getFlashes(r, w),
-	}
-	h.render(w, r, "servents.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, adminview.ServentList(pd, servents))
 }
 
 func (h *Handler) ServentShow(w http.ResponseWriter, r *http.Request) {
@@ -32,19 +30,14 @@ func (h *Handler) ServentShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get channels on this servent
 	var channels []peercast.ChannelEntry
 	if servent.Enabled {
 		client := h.peercastClient(servent)
 		channels, _ = client.GetChannels()
 	}
 
-	data := map[string]interface{}{
-		"Servent":  servent,
-		"Channels": channels,
-		"Flashes":  h.getFlashes(r, w),
-	}
-	h.render(w, r, "servent.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, adminview.ServentShow(pd, servent, channels))
 }
 
 func (h *Handler) ServentCreate(w http.ResponseWriter, r *http.Request) {

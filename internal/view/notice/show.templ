@@ -1,0 +1,26 @@
+package notice
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Show(pd view.PageData, n *model.Notice) {
+	@view.Layout(pd) {
+		<h1 class="title">{ n.Title }</h1>
+		<p class="is-size-7 has-text-grey mb-4">{ view.FormatTime(n.CreatedAt) }</p>
+		<div class="content">
+			@view.Nl2br(n.Body)
+		</div>
+		if pd.User != nil && pd.User.Admin {
+			<div class="buttons">
+				<a class="button" href={ templ.SafeURL(fmt.Sprintf("/notices/%d/edit", n.ID)) }>編集</a>
+				<form method="post" action={ templ.SafeURL(fmt.Sprintf("/notices/%d/delete", n.ID)) } style="display:inline">
+					<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+					<button class="button is-danger" type="submit" onclick="return confirm('削除しますか？')">削除</button>
+				</form>
+			</div>
+		}
+	}
+}

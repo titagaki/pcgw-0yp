@@ -1,0 +1,30 @@
+package program
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ Recent(pd view.PageData, programs []*model.ChannelInfo) {
+	@view.Layout(pd) {
+		<h1 class="title">最近の配信</h1>
+		if len(programs) > 0 {
+			<table class="table is-fullwidth is-hoverable">
+				<thead><tr><th>チャンネル名</th><th>ジャンル</th><th>説明</th><th>日時</th></tr></thead>
+				<tbody>
+					for _, p := range programs {
+						<tr>
+							<td><a href={ templ.SafeURL(fmt.Sprintf("/programs/%d", p.ID)) }>{ p.Channel }</a></td>
+							<td>{ p.Genre }</td>
+							<td>{ p.Description }</td>
+							<td>{ view.FormatTime(p.CreatedAt) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		} else {
+			<p>配信履歴がありません。</p>
+		}
+	}
+}

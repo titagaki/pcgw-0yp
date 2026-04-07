@@ -1,0 +1,26 @@
+package notice
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ List(pd view.PageData, notices []*model.Notice) {
+	@view.Layout(pd) {
+		<h1 class="title">お知らせ</h1>
+		if pd.User != nil && pd.User.Admin {
+			<a class="button is-primary mb-4" href="/notices/new">新規作成</a>
+		}
+		if len(notices) > 0 {
+			for _, n := range notices {
+				<div class="box">
+					<h2 class="subtitle"><a href={ templ.SafeURL(fmt.Sprintf("/notices/%d", n.ID)) }>{ n.Title }</a></h2>
+					<p class="is-size-7 has-text-grey">{ view.FormatTime(n.CreatedAt) }</p>
+				</div>
+			}
+		} else {
+			<p>お知らせはありません。</p>
+		}
+	}
+}

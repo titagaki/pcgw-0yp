@@ -6,16 +6,14 @@ import (
 
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view/page"
 )
 
 func (h *Handler) SourceIndex(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
 	sources, _ := model.ListSourcesByUser(h.DB, user.ID)
-	data := map[string]interface{}{
-		"Sources": sources,
-		"Flashes": h.getFlashes(r, w),
-	}
-	h.render(w, r, "sources.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, page.Sources(pd, sources))
 }
 
 func (h *Handler) SourceAdd(w http.ResponseWriter, r *http.Request) {

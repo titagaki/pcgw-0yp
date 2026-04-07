@@ -4,31 +4,23 @@ import (
 	"net/http"
 
 	"github.com/titagaki/pcgw-0yp/internal/model"
-	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view/page"
 )
-
-type serventStatus struct {
-	Servent  *model.Servent
-	Channels []peercast.ChannelEntry
-	Error    error
-}
 
 func (h *Handler) Stats(w http.ResponseWriter, r *http.Request) {
 	servents, _ := model.ListEnabledServents(h.DB)
 
-	var statuses []serventStatus
+	var statuses []page.ServentStatus
 	for _, s := range servents {
 		client := h.peercastClient(s)
 		channels, err := client.GetChannels()
-		statuses = append(statuses, serventStatus{
+		statuses = append(statuses, page.ServentStatus{
 			Servent:  s,
 			Channels: channels,
 			Error:    err,
 		})
 	}
 
-	data := map[string]interface{}{
-		"ServentStatuses": statuses,
-	}
-	h.render(w, r, "stats.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, page.Stats(pd, statuses))
 }

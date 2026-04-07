@@ -1,0 +1,32 @@
+package notice
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ New(pd view.PageData) {
+	@view.Layout(pd) {
+		<h1 class="title">お知らせ作成</h1>
+		<form method="post" action="/notices">
+			<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+			<div class="field"><label class="label">タイトル</label><div class="control"><input class="input" type="text" name="title" required maxlength="60"/></div></div>
+			<div class="field"><label class="label">本文</label><div class="control"><textarea class="textarea" name="body" required maxlength="1000"></textarea></div></div>
+			<button class="button is-primary" type="submit">作成</button>
+		</form>
+	}
+}
+
+templ Edit(pd view.PageData, n *model.Notice) {
+	@view.Layout(pd) {
+		<h1 class="title">お知らせ編集</h1>
+		<form method="post" action={ templ.SafeURL(fmt.Sprintf("/notices/%d/update", n.ID)) }>
+			<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+			<div class="field"><label class="label">タイトル</label><div class="control"><input class="input" type="text" name="title" value={ n.Title } required maxlength="60"/></div></div>
+			<div class="field"><label class="label">本文</label><div class="control"><textarea class="textarea" name="body" required maxlength="1000">{ n.Body }</textarea></div></div>
+			<button class="button is-primary" type="submit">更新</button>
+			<a class="button" href={ templ.SafeURL(fmt.Sprintf("/notices/%d", n.ID)) }>戻る</a>
+		</form>
+	}
+}

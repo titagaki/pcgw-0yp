@@ -14,6 +14,7 @@ import (
 
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/view/page"
 	"golang.org/x/oauth2"
 )
 
@@ -35,11 +36,9 @@ func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/home", http.StatusFound)
 		return
 	}
-	data := map[string]interface{}{
-		"Flashes": h.getFlashes(r, w),
-		"Backref": r.URL.Query().Get("backref"),
-	}
-	h.render(w, r, "login.html", data)
+	pd := h.pageData(r, w)
+	backref := r.URL.Query().Get("backref")
+	h.renderTempl(w, r, page.Login(pd, backref))
 }
 
 func (h *Handler) TwitterLogin(w http.ResponseWriter, r *http.Request) {

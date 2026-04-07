@@ -7,19 +7,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/model"
+	adminview "github.com/titagaki/pcgw-0yp/internal/view/admin"
 )
 
 func (h *Handler) AdminIndex(w http.ResponseWriter, r *http.Request) {
-	h.render(w, r, "admin.html", nil)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, adminview.Index(pd))
 }
 
 func (h *Handler) UserList(w http.ResponseWriter, r *http.Request) {
 	users, _ := model.ListUsers(h.DB)
-	data := map[string]interface{}{
-		"Users":   users,
-		"Flashes": h.getFlashes(r, w),
-	}
-	h.render(w, r, "users.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, adminview.UserList(pd, users))
 }
 
 func (h *Handler) UserShow(w http.ResponseWriter, r *http.Request) {
@@ -33,10 +32,8 @@ func (h *Handler) UserShow(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	data := map[string]interface{}{
-		"TargetUser": user,
-	}
-	h.render(w, r, "user.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, adminview.UserShow(pd, user))
 }
 
 func (h *Handler) UserEdit(w http.ResponseWriter, r *http.Request) {
@@ -50,11 +47,8 @@ func (h *Handler) UserEdit(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	data := map[string]interface{}{
-		"TargetUser": user,
-		"Flashes":    h.getFlashes(r, w),
-	}
-	h.render(w, r, "user_edit.html", data)
+	pd := h.pageData(r, w)
+	h.renderTempl(w, r, adminview.UserEdit(pd, user))
 }
 
 func (h *Handler) UserUpdate(w http.ResponseWriter, r *http.Request) {

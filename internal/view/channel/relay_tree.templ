@@ -1,0 +1,46 @@
+package channel
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+templ RelayTree(pd view.PageData, ch *model.Channel, tree []peercast.RelayTreeNode) {
+	@view.Layout(pd) {
+		<h1 class="title">リレーツリー</h1>
+		<a class="button mb-4" href={ templ.SafeURL(fmt.Sprintf("/channels/%d", ch.ID)) }>戻る</a>
+		if len(tree) > 0 {
+			<div class="box">
+				for _, node := range tree {
+					<div class="mb-2">
+						<strong>{ node.VersionString }</strong> { fmt.Sprintf("%s:%d", node.Address, node.Port) }
+						if node.IsFirewalled {
+							<span class="tag is-warning">Firewalled</span>
+						}
+						if node.IsReceiving {
+							<span class="tag is-success">Receiving</span>
+						}
+						<span class="tag">{ fmt.Sprintf("R:%d L:%d", node.LocalRelays, node.LocalDirects) }</span>
+						if len(node.Children) > 0 {
+							<ul class="ml-4 mt-1">
+								for _, child := range node.Children {
+									<li>
+										{ child.VersionString } { fmt.Sprintf("%s:%d", child.Address, child.Port) }
+										if child.IsFirewalled {
+											<span class="tag is-warning is-light">FW</span>
+										}
+										<span class="tag is-light">{ fmt.Sprintf("R:%d L:%d", child.LocalRelays, child.LocalDirects) }</span>
+									</li>
+								}
+							</ul>
+						}
+					</div>
+				}
+			</div>
+		} else {
+			<p>リレーツリーを取得できませんでした。</p>
+		}
+	}
+}

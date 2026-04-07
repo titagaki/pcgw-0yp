@@ -1,0 +1,115 @@
+package channel
+
+import (
+	"fmt"
+	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/view"
+)
+
+type CreateData struct {
+	Template *model.ChannelInfo
+	Servents []*model.Servent
+	Sources  []*model.Source
+	YPs      []peercast.YellowPage
+}
+
+templ Create(pd view.PageData, d CreateData) {
+	@view.Layout(pd) {
+		<h1 class="title">新規配信</h1>
+		<form method="post" action="/broadcast">
+			<input type="hidden" name="csrf_token" value={ pd.CSRFToken }/>
+			<div class="field">
+				<label class="label">チャンネル名</label>
+				<div class="control">
+					<input class="input" type="text" name="channel_name" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Channel }) } required maxlength="255"/>
+				</div>
+			</div>
+			<div class="field">
+				<label class="label">ジャンル</label>
+				<div class="control">
+					<input class="input" type="text" name="genre" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Genre }) } maxlength="255"/>
+				</div>
+			</div>
+			<div class="field">
+				<label class="label">説明</label>
+				<div class="control">
+					<input class="input" type="text" name="desc" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Description }) } maxlength="255"/>
+				</div>
+			</div>
+			<div class="field">
+				<label class="label">コメント</label>
+				<div class="control">
+					<input class="input" type="text" name="comment" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Comment }) } maxlength="255"/>
+				</div>
+			</div>
+			<div class="field">
+				<label class="label">コンタクトURL</label>
+				<div class="control">
+					<input class="input" type="url" name="url" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.URL }) }/>
+				</div>
+			</div>
+			<div class="field">
+				<label class="label">ビットレート (kbps, 0で自動検出)</label>
+				<div class="control">
+					<input class="input" type="number" name="bitrate" value="0" min="0"/>
+				</div>
+			</div>
+			if len(d.YPs) > 0 {
+				<div class="field">
+					<label class="label">Yellow Page</label>
+					<div class="control">
+						<div class="select">
+							<select name="yp">
+								<option value="">なし</option>
+								for _, yp := range d.YPs {
+									<option
+										value={ yp.Name }
+										if d.Template != nil && d.Template.YP == yp.Name {
+											selected
+										}
+									>{ yp.Name }</option>
+								}
+							</select>
+						</div>
+					</div>
+				</div>
+			}
+			if len(d.Sources) > 0 {
+				<div class="field">
+					<label class="label">ソース</label>
+					<div class="control">
+						<div class="select">
+							<select name="source_name">
+								<option value="">デフォルト</option>
+								for _, s := range d.Sources {
+									<option value={ s.Name }>{ s.Name }</option>
+								}
+							</select>
+						</div>
+					</div>
+				</div>
+			}
+			if len(d.Servents) > 1 {
+				<div class="field">
+					<label class="label">サーバー</label>
+					<div class="control">
+						<div class="select">
+							<select name="servent_id">
+								<option value="">自動選択</option>
+								for _, sv := range d.Servents {
+									<option value={ fmt.Sprint(sv.ID) }>{ sv.Name }</option>
+								}
+							</select>
+						</div>
+					</div>
+				</div>
+			}
+			<div class="field">
+				<div class="control">
+					<button class="button is-primary" type="submit">配信開始</button>
+				</div>
+			</div>
+		</form>
+	}
+}
