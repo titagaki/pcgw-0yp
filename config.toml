@@ -1,17 +1,17 @@
 [server]
 port = 8080
-session_secret = "change-me-to-a-random-string"
+# session_secret: 環境変数 SESSION_SECRET で設定
 
 [db]
 host = "127.0.0.1"
-port = 3306
+port = 3307
 user = "pcgw"
-passwd = "pcgw"
+# passwd: 環境変数 DB_PASSWD で設定
 dbname = "pcgw"
 
 [twitter]
-client_id = ""
-client_secret = ""
-redirect_url = "http://localhost:8080/auth/twitter/callback"
+# client_id: 環境変数 TWITTER_CLIENT_ID で設定
+# client_secret: 環境変数 TWITTER_CLIENT_SECRET で設定
+redirect_url = "http://127.0.0.1:8080/auth/twitter/callback"
 
 # 複数のpeercast-miインスタンスはDB上のserventテーブルで管理

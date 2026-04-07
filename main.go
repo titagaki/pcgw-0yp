@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 	"github.com/titagaki/pcgw-0yp/internal/config"
 	"github.com/titagaki/pcgw-0yp/internal/db"
 	"github.com/titagaki/pcgw-0yp/internal/handler"
@@ -16,6 +17,8 @@ import (
 
 func main() {
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	godotenv.Load() // .env があれば読み込む（なくてもエラーにしない）
 
 	configPath := "config.toml"
 	if len(os.Args) > 1 {

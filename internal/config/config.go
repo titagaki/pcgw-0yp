@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+
 	"github.com/BurntSushi/toml"
 )
 
@@ -48,6 +50,19 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.DB.DBName == "" {
 		cfg.DB.DBName = "pcgw"
+	}
+	// 環境変数があればTOMLの値を上書き
+	if v := os.Getenv("SESSION_SECRET"); v != "" {
+		cfg.Server.SessionSecret = v
+	}
+	if v := os.Getenv("DB_PASSWD"); v != "" {
+		cfg.DB.Passwd = v
+	}
+	if v := os.Getenv("TWITTER_CLIENT_ID"); v != "" {
+		cfg.Twitter.ClientID = v
+	}
+	if v := os.Getenv("TWITTER_CLIENT_SECRET"); v != "" {
+		cfg.Twitter.ClientSecret = v
 	}
 	return &cfg, nil
 }
