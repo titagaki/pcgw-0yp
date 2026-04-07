@@ -18,8 +18,9 @@ var publicPrefixes = []string{
 	"/api/1/",
 	"/public/",
 	"/stats",
-	"/profile/",
-	"/programs/",
+	"/profile",
+	"/programs",
+	"/doc/",
 }
 
 func Auth(database *sql.DB) func(http.Handler) http.Handler {

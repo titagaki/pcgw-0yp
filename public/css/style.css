@@ -2,3 +2,38 @@
 .navbar-item .image {
   display: inline-flex;
 }
+
+/* Welcome hero */
+.hero-welcome {
+  background-color: #f5f5f5;
+  color: #363636;
+}
+
+.hero-welcome .title {
+  color: #363636;
+}
+
+.hero-welcome .subtitle {
+  color: #4a4a4a;
+}
+
+.hero-btn-primary {
+  background-color: #3273dc;
+  border-color: #3273dc;
+  color: #fff;
+}
+
+.hero-btn-primary:hover {
+  background-color: #276cda;
+  color: #fff;
+}
+
+.hero-btn-secondary {
+  border-color: #4a4a4a;
+  color: #4a4a4a;
+}
+
+.hero-btn-secondary:hover {
+  background-color: #4a4a4a;
+  color: #fff;
+}

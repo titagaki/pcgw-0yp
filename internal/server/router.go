@@ -24,6 +24,7 @@ func NewRouter(h *handler.Handler, sessionMiddleware func(http.Handler) http.Han
 
 	// Public pages
 	r.Get("/", h.TopPage)
+	r.Get("/doc/desc", h.DescPage)
 	r.Get("/login", h.LoginPage)
 	r.Get("/auth/twitter", h.TwitterLogin)
 	r.Get("/auth/twitter/callback", h.TwitterCallback)

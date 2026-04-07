@@ -15,6 +15,10 @@ func (h *Handler) TopPage(w http.ResponseWriter, r *http.Request) {
 	h.render(w, r, "top.html", nil)
 }
 
+func (h *Handler) DescPage(w http.ResponseWriter, r *http.Request) {
+	h.render(w, r, "desc.html", nil)
+}
+
 func (h *Handler) HomePage(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
 

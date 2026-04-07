@@ -13,9 +13,15 @@
       <a class="navbar-item" href="/create">配信</a>
       <a class="navbar-item" href="/sources">ソース</a>
       {{end}}
-      <a class="navbar-item" href="/stats">統計</a>
-      <a class="navbar-item" href="/programs">番組表</a>
-      <a class="navbar-item" href="/profile">ユーザー</a>
+      <a class="navbar-item" href="/stats">
+        <span class="icon"><i class="fas fa-chart-bar"></i></span><span>利用状況</span>
+      </a>
+      <a class="navbar-item" href="/programs">
+        <span class="icon"><i class="fas fa-clock-rotate-left"></i></span><span>過去の番組</span>
+      </a>
+      <a class="navbar-item" href="/profile">
+        <span class="icon"><i class="fas fa-user"></i></span><span>ユーザー</span>
+      </a>
       {{if .LoggedIn}}
       <a class="navbar-item" href="/notices">
         お知らせ{{if .HasUnreadNotices}} <span class="tag is-danger is-light ml-1">NEW</span>{{end}}
