@@ -1,0 +1,32 @@
+{{define "content"}}
+<h1 class="title">接続一覧</h1>
+<a class="button mb-4" href="/channels/{{.Channel.ID}}">戻る</a>
+{{if .Connections}}
+<table class="table is-fullwidth is-hoverable">
+  <thead><tr><th>ID</th><th>種別</th><th>状態</th><th>プロトコル</th><th>リモート</th><th>送信(B/s)</th><th></th></tr></thead>
+  <tbody>
+  {{range .Connections}}
+  <tr>
+    <td>{{.ConnectionID}}</td>
+    <td>{{.Type}}</td>
+    <td>{{.Status}}</td>
+    <td>{{.ProtocolName}}</td>
+    <td>{{.RemoteEndPoint}}</td>
+    <td>{{.SendRate}}</td>
+    <td>
+      {{if and (ne .Type "source") (ne .Type "direct")}}
+      <form method="post" action="/channels/{{$.Channel.ID}}/connections/{{.ConnectionID}}/disconnect" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+        <button class="button is-small is-danger is-outlined" type="submit">切断</button>
+      </form>
+      {{end}}
+    </td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<p>接続がありません。</p>
+{{end}}
+{{end}}
+{{template "layout" .}}

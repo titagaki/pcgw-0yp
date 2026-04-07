@@ -1,0 +1,11 @@
+{{define "content"}}
+<h1 class="title">お知らせ編集</h1>
+<form method="post" action="/notices/{{.Notice.ID}}/update">
+  <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+  <div class="field"><label class="label">タイトル</label><div class="control"><input class="input" type="text" name="title" value="{{.Notice.Title}}" required maxlength="60"></div></div>
+  <div class="field"><label class="label">本文</label><div class="control"><textarea class="textarea" name="body" required maxlength="1000">{{.Notice.Body}}</textarea></div></div>
+  <button class="button is-primary" type="submit">更新</button>
+  <a class="button" href="/notices/{{.Notice.ID}}">戻る</a>
+</form>
+{{end}}
+{{template "layout" .}}

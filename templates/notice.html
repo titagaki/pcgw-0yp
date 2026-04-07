@@ -1,0 +1,15 @@
+{{define "content"}}
+<h1 class="title">{{.Notice.Title}}</h1>
+<p class="is-size-7 has-text-grey mb-4">{{formatTime .Notice.CreatedAt}}</p>
+<div class="content">{{nl2br .Notice.Body}}</div>
+{{if and .User .User.Admin}}
+<div class="buttons">
+  <a class="button" href="/notices/{{.Notice.ID}}/edit">編集</a>
+  <form method="post" action="/notices/{{.Notice.ID}}/delete" style="display:inline">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <button class="button is-danger" type="submit" onclick="return confirm('削除しますか？')">削除</button>
+  </form>
+</div>
+{{end}}
+{{end}}
+{{template "layout" .}}

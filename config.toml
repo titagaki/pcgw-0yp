@@ -1,0 +1,13 @@
+[server]
+port = 8080
+session_secret = "change-me-to-a-random-string"
+
+[db]
+path = "db/pcgw.db"
+
+[twitter]
+client_id = ""
+client_secret = ""
+redirect_url = "http://localhost:8080/auth/twitter/callback"
+
+# 複数のpeercast-miインスタンスはDB上のserventテーブルで管理

@@ -1,0 +1,10 @@
+{{define "flash"}}
+{{if .Flashes}}
+{{range .Flashes}}
+<div class="notification is-info is-light">
+  <button class="delete"></button>
+  {{.}}
+</div>
+{{end}}
+{{end}}
+{{end}}

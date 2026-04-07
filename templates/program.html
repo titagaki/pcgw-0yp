@@ -1,0 +1,21 @@
+{{define "content"}}
+<h1 class="title">{{.Program.Channel}}</h1>
+<div class="box">
+  <table class="table">
+    <tr><th>配信者</th><td>{{if .ProgramUser}}<a href="/profile/{{.ProgramUser.ID}}">{{.ProgramUser.Name}}</a>{{end}}</td></tr>
+    <tr><th>ジャンル</th><td>{{.Program.Genre}}</td></tr>
+    <tr><th>説明</th><td>{{.Program.Description}}</td></tr>
+    <tr><th>コメント</th><td>{{.Program.Comment}}</td></tr>
+    <tr><th>URL</th><td>{{if .Program.URL}}<a href="{{.Program.URL}}" target="_blank" rel="noopener">{{.Program.URL}}</a>{{end}}</td></tr>
+    <tr><th>種別</th><td>{{.Program.StreamType}}</td></tr>
+    <tr><th>YP</th><td>{{.Program.YP}}</td></tr>
+    <tr><th>開始</th><td>{{formatTime .Program.CreatedAt}}</td></tr>
+    {{if .Program.TerminatedAt.Valid}}
+    <tr><th>終了</th><td>{{formatTime .Program.TerminatedAt.Time}}</td></tr>
+    {{else}}
+    <tr><th>状態</th><td><span class="tag is-success">配信中</span></td></tr>
+    {{end}}
+  </table>
+</div>
+{{end}}
+{{template "layout" .}}

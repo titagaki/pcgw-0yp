@@ -1,0 +1,30 @@
+{{define "content"}}
+<h1 class="title">リレーツリー</h1>
+<a class="button mb-4" href="/channels/{{.Channel.ID}}">戻る</a>
+{{if .RelayTree}}
+<div class="box">
+{{range .RelayTree}}
+  <div class="mb-2">
+    <strong>{{.VersionString}}</strong> {{.Address}}:{{.Port}}
+    {{if .IsFirewalled}}<span class="tag is-warning">Firewalled</span>{{end}}
+    {{if .IsReceiving}}<span class="tag is-success">Receiving</span>{{end}}
+    <span class="tag">R:{{.LocalRelays}} L:{{.LocalDirects}}</span>
+    {{if .Children}}
+    <ul class="ml-4 mt-1">
+    {{range .Children}}
+      <li>
+        {{.VersionString}} {{.Address}}:{{.Port}}
+        {{if .IsFirewalled}}<span class="tag is-warning is-light">FW</span>{{end}}
+        <span class="tag is-light">R:{{.LocalRelays}} L:{{.LocalDirects}}</span>
+      </li>
+    {{end}}
+    </ul>
+    {{end}}
+  </div>
+{{end}}
+</div>
+{{else}}
+<p>リレーツリーを取得できませんでした。</p>
+{{end}}
+{{end}}
+{{template "layout" .}}

@@ -1,0 +1,63 @@
+{{define "content"}}
+<h1 class="title">{{.Servent.Name}}</h1>
+
+<div class="box">
+  <form method="post" action="/servents/{{.Servent.ID}}">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="columns">
+      <div class="column"><div class="field"><label class="label">名前</label><div class="control"><input class="input" type="text" name="name" value="{{.Servent.Name}}" required></div></div></div>
+      <div class="column"><div class="field"><label class="label">ホスト名</label><div class="control"><input class="input" type="text" name="hostname" value="{{.Servent.Hostname}}" required></div></div></div>
+      <div class="column is-narrow"><div class="field"><label class="label">ポート</label><div class="control"><input class="input" type="number" name="port" value="{{.Servent.Port}}" required></div></div></div>
+    </div>
+    <div class="columns">
+      <div class="column"><div class="field"><label class="label">説明</label><div class="control"><input class="input" type="text" name="desc" value="{{.Servent.Description}}"></div></div></div>
+      <div class="column is-narrow"><div class="field"><label class="label">最大CH</label><div class="control"><input class="input" type="number" name="max_channels" value="{{.Servent.MaxChannels}}"></div></div></div>
+      <div class="column is-narrow"><div class="field"><label class="label">優先度</label><div class="control"><input class="input" type="number" name="priority" value="{{.Servent.Priority}}"></div></div></div>
+    </div>
+    <div class="columns">
+      <div class="column"><div class="field"><label class="label">認証ID</label><div class="control"><input class="input" type="text" name="auth_id" value="{{.Servent.AuthID}}"></div></div></div>
+      <div class="column"><div class="field"><label class="label">パスワード</label><div class="control"><input class="input" type="password" name="passwd" value="{{.Servent.Passwd}}"></div></div></div>
+      <div class="column is-narrow"><div class="field"><label class="label">有効</label><div class="control mt-2"><label class="checkbox"><input type="checkbox" name="enabled" {{if .Servent.Enabled}}checked{{end}}> 有効</label></div></div></div>
+    </div>
+    <div class="buttons">
+      <button class="button is-primary" type="submit">更新</button>
+    </div>
+  </form>
+
+  <div class="buttons mt-4">
+    <form method="post" action="/servents/{{.Servent.ID}}/refresh" style="display:inline">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+      <button class="button is-info" type="submit">サーバー情報を取得</button>
+    </form>
+    <form method="post" action="/servents/{{.Servent.ID}}/delete" style="display:inline">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+      <button class="button is-danger" type="submit" onclick="return confirm('削除しますか？')">削除</button>
+    </form>
+  </div>
+
+  <table class="table mt-4">
+    <tr><th>エージェント</th><td>{{.Servent.Agent}}</td></tr>
+    <tr><th>Yellow Pages</th><td>{{.Servent.YellowPages}}</td></tr>
+  </table>
+</div>
+
+{{if .Channels}}
+<div class="box">
+  <h2 class="subtitle">チャンネル</h2>
+  <table class="table is-fullwidth">
+    <thead><tr><th>名前</th><th>状態</th><th>リレー</th><th>リスナー</th></tr></thead>
+    <tbody>
+    {{range .Channels}}
+    <tr>
+      <td>{{.Info.Name}}</td>
+      <td><span class="tag is-{{statusClass .Status.Status}}">{{.Status.Status}}</span></td>
+      <td>{{.Status.TotalRelays}}</td>
+      <td>{{.Status.TotalDirects}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
+{{end}}
+{{template "layout" .}}

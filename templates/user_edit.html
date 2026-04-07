@@ -1,0 +1,19 @@
+{{define "content"}}
+<h1 class="title">ユーザー編集: {{.TargetUser.Name}}</h1>
+<form method="post" action="/users/{{.TargetUser.ID}}">
+  <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+  <div class="field"><label class="label">名前</label><div class="control"><input class="input" type="text" name="name" value="{{.TargetUser.Name}}"></div></div>
+  <div class="field"><label class="label">画像URL</label><div class="control"><input class="input" type="text" name="image" value="{{.TargetUser.Image}}"></div></div>
+  <div class="field"><label class="checkbox"><input type="checkbox" name="admin" {{if .TargetUser.Admin}}checked{{end}}> Admin</label></div>
+  <div class="field"><label class="checkbox"><input type="checkbox" name="suspended" {{if .TargetUser.Suspended}}checked{{end}}> 凍結</label></div>
+  <div class="buttons">
+    <button class="button is-primary" type="submit">更新</button>
+    <a class="button" href="/users">戻る</a>
+  </div>
+</form>
+<form method="post" action="/users/{{.TargetUser.ID}}/delete" class="mt-4">
+  <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+  <button class="button is-danger" type="submit" onclick="return confirm('本当に削除しますか？')">ユーザーを削除</button>
+</form>
+{{end}}
+{{template "layout" .}}

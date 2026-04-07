@@ -1,0 +1,86 @@
+package db
+
+const schema = `
+CREATE TABLE IF NOT EXISTS users (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL DEFAULT '',
+	image TEXT NOT NULL DEFAULT '',
+	twitter_id TEXT,
+	admin INTEGER NOT NULL DEFAULT 0,
+	suspended INTEGER NOT NULL DEFAULT 0,
+	bio TEXT NOT NULL DEFAULT '',
+	notice_checked_at DATETIME,
+	logged_on_at DATETIME,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_twitter_id ON users(twitter_id) WHERE twitter_id IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS servents (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL DEFAULT '',
+	description TEXT NOT NULL DEFAULT '',
+	hostname TEXT NOT NULL,
+	port INTEGER NOT NULL,
+	auth_id TEXT NOT NULL DEFAULT '',
+	passwd TEXT NOT NULL DEFAULT '',
+	priority INTEGER NOT NULL DEFAULT 0,
+	max_channels INTEGER NOT NULL DEFAULT 0,
+	enabled INTEGER NOT NULL DEFAULT 0,
+	agent TEXT NOT NULL DEFAULT '',
+	yellow_pages TEXT NOT NULL DEFAULT ''
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_servents_name ON servents(name);
+
+CREATE TABLE IF NOT EXISTS channels (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	gnu_id TEXT NOT NULL,
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	servent_id INTEGER NOT NULL REFERENCES servents(id),
+	stream_key TEXT NOT NULL DEFAULT '',
+	last_active_at DATETIME,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_channels_user_id ON channels(user_id);
+CREATE INDEX IF NOT EXISTS idx_channels_servent_id ON channels(servent_id);
+
+CREATE TABLE IF NOT EXISTS channel_infos (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	channel TEXT NOT NULL DEFAULT '',
+	genre TEXT NOT NULL DEFAULT '',
+	description TEXT NOT NULL DEFAULT '',
+	comment TEXT NOT NULL DEFAULT '',
+	url TEXT NOT NULL DEFAULT '',
+	stream_type TEXT NOT NULL DEFAULT 'FLV',
+	yp TEXT NOT NULL DEFAULT '',
+	channel_id INTEGER REFERENCES channels(id),
+	servent_id INTEGER REFERENCES servents(id),
+	source_name TEXT NOT NULL DEFAULT '',
+	terminated_at DATETIME,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_channel_infos_user_id ON channel_infos(user_id);
+CREATE INDEX IF NOT EXISTS idx_channel_infos_channel_id ON channel_infos(channel_id);
+
+CREATE TABLE IF NOT EXISTS sources (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	name TEXT NOT NULL DEFAULT '',
+	key TEXT NOT NULL DEFAULT ''
+);
+
+CREATE INDEX IF NOT EXISTS idx_sources_user_id ON sources(user_id);
+
+CREATE TABLE IF NOT EXISTS notices (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	title TEXT NOT NULL DEFAULT '',
+	body TEXT NOT NULL DEFAULT '',
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+`

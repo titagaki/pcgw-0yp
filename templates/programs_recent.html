@@ -1,0 +1,21 @@
+{{define "content"}}
+<h1 class="title">最近の配信</h1>
+{{if .Programs}}
+<table class="table is-fullwidth is-hoverable">
+  <thead><tr><th>チャンネル名</th><th>ジャンル</th><th>説明</th><th>日時</th></tr></thead>
+  <tbody>
+  {{range .Programs}}
+  <tr>
+    <td><a href="/programs/{{.ID}}">{{.Channel}}</a></td>
+    <td>{{.Genre}}</td>
+    <td>{{.Description}}</td>
+    <td>{{formatTime .CreatedAt}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<p>配信履歴がありません。</p>
+{{end}}
+{{end}}
+{{template "layout" .}}

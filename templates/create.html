@@ -1,0 +1,104 @@
+{{define "content"}}
+<h1 class="title">新規配信</h1>
+
+<form method="post" action="/broadcast">
+  <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+  <div class="field">
+    <label class="label">チャンネル名</label>
+    <div class="control">
+      <input class="input" type="text" name="channel_name" value="{{if .Template}}{{.Template.Channel}}{{end}}" required maxlength="255">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">ジャンル</label>
+    <div class="control">
+      <input class="input" type="text" name="genre" value="{{if .Template}}{{.Template.Genre}}{{end}}" maxlength="255">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">説明</label>
+    <div class="control">
+      <input class="input" type="text" name="desc" value="{{if .Template}}{{.Template.Description}}{{end}}" maxlength="255">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">コメント</label>
+    <div class="control">
+      <input class="input" type="text" name="comment" value="{{if .Template}}{{.Template.Comment}}{{end}}" maxlength="255">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">コンタクトURL</label>
+    <div class="control">
+      <input class="input" type="url" name="url" value="{{if .Template}}{{.Template.URL}}{{end}}">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label">ビットレート (kbps, 0で自動検出)</label>
+    <div class="control">
+      <input class="input" type="number" name="bitrate" value="0" min="0">
+    </div>
+  </div>
+
+  {{if .YPs}}
+  <div class="field">
+    <label class="label">Yellow Page</label>
+    <div class="control">
+      <div class="select">
+        <select name="yp">
+          <option value="">なし</option>
+          {{range .YPs}}
+          <option value="{{.Name}}" {{if and $.Template (eq $.Template.YP .Name)}}selected{{end}}>{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .Sources}}
+  <div class="field">
+    <label class="label">ソース</label>
+    <div class="control">
+      <div class="select">
+        <select name="source_name">
+          <option value="">デフォルト</option>
+          {{range .Sources}}
+          <option value="{{.Name}}">{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  {{if gt (len .Servents) 1}}
+  <div class="field">
+    <label class="label">サーバー</label>
+    <div class="control">
+      <div class="select">
+        <select name="servent_id">
+          <option value="">自動選択</option>
+          {{range .Servents}}
+          <option value="{{.ID}}">{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  <div class="field">
+    <div class="control">
+      <button class="button is-primary" type="submit">配信開始</button>
+    </div>
+  </div>
+</form>
+{{end}}
+{{template "layout" .}}
