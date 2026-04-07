@@ -33,9 +33,5 @@ func Open(cfg Config) (*sql.DB, error) {
 		db.Close()
 		return nil, err
 	}
-	if _, err := db.Exec(schema); err != nil {
-		db.Close()
-		return nil, err
-	}
 	return db, nil
 }
