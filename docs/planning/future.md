@@ -119,6 +119,30 @@
 
 ---
 
+## コードレビュー残件 (低優先度, 2026-04-08)
+
+### #15 PKCE が plain method
+- `internal/handler/auth.go` TwitterLogin
+- `code_challenge_method: "plain"` は PKCE の保護効果がほぼない
+- `S256` (SHA-256) に変更すべき
+
+### #16 ChannelStatusJSON の Content-Type 設定順序
+- `internal/handler/channel.go` ChannelStatusJSON
+- エラー時に `WriteHeader` してから JSON を書いているが Content-Type ヘッダーが未設定
+- `WriteHeader` の前に `Content-Type` を設定する必要がある
+
+### #17 Logout が GET メソッド
+- `internal/server/router.go`
+- CSRF 保護が効かないため、外部サイトの `<img src="/logout">` でログアウトさせられる
+- POST に変更し、ログアウトボタンをフォームにする
+
+### #18 /channels がログイン必須
+- `internal/server/router.go`, `internal/middleware/auth.go`
+- `/channels` が `publicPrefixes` に含まれないためログイン必須
+- 意図的かどうか確認して、公開すべきなら prefix を追加する
+
+---
+
 ## 実装時の注意事項
 
 ### テンプレートパターン

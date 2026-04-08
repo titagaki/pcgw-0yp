@@ -37,6 +37,10 @@ go vet ./...                   # 静的解析
 - `templates/` - HTMLテンプレート (layout + content パターン)
 - `public/` - 静的ファイル
 - `docs/` - 詳細ドキュメント
+  - `docs/design/` - システム設計 (アーキテクチャ, DB, ルーティング)
+  - `docs/guides/` - 運用・移行ガイド (設定, 移行)
+  - `docs/reference/` - 外部APIリファレンス (PeerCast API)
+  - `docs/planning/` - 今後の計画・未実装機能
 
 ## コーディング規約
 
@@ -69,4 +73,4 @@ go vet ./...                   # 静的解析
 ## 未実装機能
 
 スクリーンショット, BBS連携, Twitch OAuth, パスワード認証, リピーター, IP日本語化。
-詳細は `docs/future.md` を参照。
+詳細は `docs/planning/future.md` を参照。
