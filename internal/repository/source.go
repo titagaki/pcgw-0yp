@@ -9,7 +9,11 @@ import (
 )
 
 func ListSourcesByUser(db *sql.DB, userID int64) ([]*domain.Source, error) {
-	rows, err := db.Query(`SELECT id, user_id, name, `+"`key`"+` FROM sources WHERE user_id = ? ORDER BY id`, userID)
+	rows, err := db.Query(`
+		SELECT id, user_id, name, `+"`key`"+`
+		FROM sources
+		WHERE user_id = ?
+		ORDER BY id`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +31,11 @@ func ListSourcesByUser(db *sql.DB, userID int64) ([]*domain.Source, error) {
 
 func GetSource(db *sql.DB, id int64) (*domain.Source, error) {
 	s := &domain.Source{}
-	err := db.QueryRow(`SELECT id, user_id, name, `+"`key`"+` FROM sources WHERE id = ?`, id).Scan(&s.ID, &s.UserID, &s.Name, &s.Key)
+	err := db.QueryRow(`
+		SELECT id, user_id, name, `+"`key`"+`
+		FROM sources
+		WHERE id = ?`, id,
+	).Scan(&s.ID, &s.UserID, &s.Name, &s.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +50,11 @@ func generateKey() string {
 
 func CreateSource(db *sql.DB, userID int64, name string) (*domain.Source, error) {
 	key := generateKey()
-	result, err := db.Exec(`INSERT INTO sources (user_id, name, `+"`key`"+`) VALUES (?, ?, ?)`, userID, name, key)
+	result, err := db.Exec(`
+		INSERT INTO sources (user_id, name, `+"`key`"+`)
+		VALUES (?, ?, ?)`,
+		userID, name, key,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +64,10 @@ func CreateSource(db *sql.DB, userID int64, name string) (*domain.Source, error)
 
 func RegenerateSourceKey(db *sql.DB, id int64) error {
 	key := generateKey()
-	_, err := db.Exec(`UPDATE sources SET `+"`key`"+` = ? WHERE id = ?`, key, id)
+	_, err := db.Exec(
+		"UPDATE sources SET `key` = ? WHERE id = ?",
+		key, id,
+	)
 	return err
 }
 
@@ -63,6 +78,8 @@ func DeleteSource(db *sql.DB, id int64) error {
 
 func CountSourcesByUser(db *sql.DB, userID int64) (int, error) {
 	var count int
-	err := db.QueryRow(`SELECT COUNT(*) FROM sources WHERE user_id = ?`, userID).Scan(&count)
+	err := db.QueryRow(
+		`SELECT COUNT(*) FROM sources WHERE user_id = ?`, userID,
+	).Scan(&count)
 	return count, err
 }

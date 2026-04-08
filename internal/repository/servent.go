@@ -6,29 +6,44 @@ import (
 	"github.com/titagaki/pcgw-0yp/internal/domain"
 )
 
-func GetServent(db *sql.DB, id int64) (*domain.Servent, error) {
+const serventColumns = `
+	id, name, description, hostname, port,
+	auth_id, passwd, priority, max_channels,
+	enabled, agent, yellow_pages`
+
+func scanServent(row interface{ Scan(...interface{}) error }) (*domain.Servent, error) {
 	s := &domain.Servent{}
-	err := db.QueryRow(
-		`SELECT id, name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled, agent, yellow_pages FROM servents WHERE id = ?`, id,
-	).Scan(&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port, &s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels, &s.Enabled, &s.Agent, &s.YellowPages)
+	err := row.Scan(
+		&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port,
+		&s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels,
+		&s.Enabled, &s.Agent, &s.YellowPages,
+	)
 	if err != nil {
 		return nil, err
 	}
 	return s, nil
 }
 
+func GetServent(db *sql.DB, id int64) (*domain.Servent, error) {
+	return scanServent(db.QueryRow(`
+		SELECT`+serventColumns+`
+		FROM servents
+		WHERE id = ?`, id))
+}
+
 func ListServents(db *sql.DB) ([]*domain.Servent, error) {
-	rows, err := db.Query(
-		`SELECT id, name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled, agent, yellow_pages FROM servents ORDER BY priority, id`,
-	)
+	rows, err := db.Query(`
+		SELECT` + serventColumns + `
+		FROM servents
+		ORDER BY priority, id`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var servents []*domain.Servent
 	for rows.Next() {
-		s := &domain.Servent{}
-		if err := rows.Scan(&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port, &s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels, &s.Enabled, &s.Agent, &s.YellowPages); err != nil {
+		s, err := scanServent(rows)
+		if err != nil {
 			return nil, err
 		}
 		servents = append(servents, s)
@@ -37,17 +52,19 @@ func ListServents(db *sql.DB) ([]*domain.Servent, error) {
 }
 
 func ListEnabledServents(db *sql.DB) ([]*domain.Servent, error) {
-	rows, err := db.Query(
-		`SELECT id, name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled, agent, yellow_pages FROM servents WHERE enabled = 1 ORDER BY priority, id`,
-	)
+	rows, err := db.Query(`
+		SELECT`+serventColumns+`
+		FROM servents
+		WHERE enabled = 1
+		ORDER BY priority, id`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var servents []*domain.Servent
 	for rows.Next() {
-		s := &domain.Servent{}
-		if err := rows.Scan(&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port, &s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels, &s.Enabled, &s.Agent, &s.YellowPages); err != nil {
+		s, err := scanServent(rows)
+		if err != nil {
 			return nil, err
 		}
 		servents = append(servents, s)
@@ -74,9 +91,13 @@ func RequestServentWithVacancy(db *sql.DB) (*domain.Servent, error) {
 }
 
 func CreateServent(db *sql.DB, name, description, hostname string, port int, authID, passwd string, priority, maxChannels int, enabled bool) (*domain.Servent, error) {
-	result, err := db.Exec(
-		`INSERT INTO servents (name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		name, description, hostname, port, authID, passwd, priority, maxChannels, enabled,
+	result, err := db.Exec(`
+		INSERT INTO servents
+			(name, description, hostname, port,
+			 auth_id, passwd, priority, max_channels, enabled)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		name, description, hostname, port,
+		authID, passwd, priority, maxChannels, enabled,
 	)
 	if err != nil {
 		return nil, err
@@ -86,15 +107,24 @@ func CreateServent(db *sql.DB, name, description, hostname string, port int, aut
 }
 
 func UpdateServent(db *sql.DB, id int64, name, description, hostname string, port int, authID, passwd string, priority, maxChannels int, enabled bool) error {
-	_, err := db.Exec(
-		`UPDATE servents SET name=?, description=?, hostname=?, port=?, auth_id=?, passwd=?, priority=?, max_channels=?, enabled=? WHERE id=?`,
-		name, description, hostname, port, authID, passwd, priority, maxChannels, enabled, id,
+	_, err := db.Exec(`
+		UPDATE servents
+		SET name = ?, description = ?, hostname = ?, port = ?,
+		    auth_id = ?, passwd = ?, priority = ?,
+		    max_channels = ?, enabled = ?
+		WHERE id = ?`,
+		name, description, hostname, port,
+		authID, passwd, priority,
+		maxChannels, enabled, id,
 	)
 	return err
 }
 
 func UpdateServentAgent(db *sql.DB, id int64, agent, yellowPages string) error {
-	_, err := db.Exec(`UPDATE servents SET agent=?, yellow_pages=? WHERE id=?`, agent, yellowPages, id)
+	_, err := db.Exec(
+		`UPDATE servents SET agent = ?, yellow_pages = ? WHERE id = ?`,
+		agent, yellowPages, id,
+	)
 	return err
 }
 
