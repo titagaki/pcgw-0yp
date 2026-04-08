@@ -9,10 +9,8 @@ import (
 
 type contextKey string
 
-const (
-	sessionKey  contextKey = "session"
-	SessionName            = "pcgw_session"
-)
+const sessionKey contextKey = "session"
+const SessionName = "pcgw_session"
 
 func Session(store sessions.Store) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -25,5 +23,6 @@ func Session(store sessions.Store) func(http.Handler) http.Handler {
 }
 
 func GetSession(r *http.Request) *sessions.Session {
-	return r.Context().Value(sessionKey).(*sessions.Session)
+	s, _ := r.Context().Value(sessionKey).(*sessions.Session)
+	return s
 }

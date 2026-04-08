@@ -18,39 +18,36 @@ func (h *Handler) APIChannelStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channels, _ := model.ListChannels(h.DB)
-	for _, ch := range channels {
-		servent, _ := model.GetServent(h.DB, ch.ServentID)
-		if servent == nil {
-			continue
-		}
+	// servent ごとにチャンネル一覧を取得し、名前で探す
+	servents, _ := model.ListEnabledServents(h.DB)
+	for _, servent := range servents {
 		client := h.peercastClient(servent)
-		info, err := client.GetChannelInfo(ch.GnuID)
+		entries, err := client.GetChannels()
 		if err != nil {
 			continue
 		}
-		if info.Info.Name == name {
-			status, err := client.GetChannelStatus(ch.GnuID)
-			if err != nil {
+		for _, entry := range entries {
+			if entry.Info.Name != name {
 				continue
 			}
-			ci, _ := model.GetChannelInfoByChannelID(h.DB, ch.ID)
 			result := map[string]interface{}{
-				"name":         info.Info.Name,
-				"genre":        info.Info.Genre,
-				"desc":         info.Info.Desc,
-				"comment":      info.Info.Comment,
-				"url":          info.Info.URL,
-				"bitrate":      info.Info.Bitrate,
-				"contentType":  info.Info.ContentType,
-				"listeners":    status.TotalDirects,
-				"relays":       status.TotalRelays,
-				"status":       status.Status,
-				"uptime":       status.Uptime,
-				"isBroadcasting": status.IsBroadcasting,
+				"name":           entry.Info.Name,
+				"genre":          entry.Info.Genre,
+				"desc":           entry.Info.Desc,
+				"comment":        entry.Info.Comment,
+				"url":            entry.Info.URL,
+				"bitrate":        entry.Info.Bitrate,
+				"contentType":    entry.Info.ContentType,
+				"listeners":      entry.Status.TotalDirects,
+				"relays":         entry.Status.TotalRelays,
+				"status":         entry.Status.Status,
+				"uptime":         entry.Status.Uptime,
+				"isBroadcasting": entry.Status.IsBroadcasting,
 			}
-			if ci != nil {
-				result["streamType"] = ci.StreamType
+			if ch, err := model.GetChannelByGnuID(h.DB, entry.ChannelID); err == nil {
+				if ci, err := model.GetChannelInfoByChannelID(h.DB, ch.ID); err == nil {
+					result["streamType"] = ci.StreamType
+				}
 			}
 			json.NewEncoder(w).Encode(result)
 			return

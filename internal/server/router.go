@@ -70,9 +70,9 @@ func NewRouter(h *handler.Handler, sessionMiddleware func(http.Handler) http.Han
 
 	// Sources
 	r.Get("/sources", h.SourceIndex)
-	r.Get("/sources/add", h.SourceAdd)
-	r.Get("/sources/del", h.SourceDelete)
-	r.Get("/sources/regen", h.SourceRegen)
+	r.Post("/sources/add", h.SourceAdd)
+	r.Post("/sources/del", h.SourceDelete)
+	r.Post("/sources/regen", h.SourceRegen)
 
 	// Programs (authenticated)
 	r.Post("/programs/{id}/delete", h.ProgramDelete)

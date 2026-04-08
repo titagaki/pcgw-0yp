@@ -45,10 +45,12 @@ func (h *Handler) CreatePage(w http.ResponseWriter, r *http.Request) {
 	}))
 }
 
-func generateStreamKey() string {
+func generateStreamKey() (string, error) {
 	b := make([]byte, 16)
-	rand.Read(b)
-	return "sk_" + hex.EncodeToString(b)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return "sk_" + hex.EncodeToString(b), nil
 }
 
 func (h *Handler) Broadcast(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +98,11 @@ func (h *Handler) Broadcast(w http.ResponseWriter, r *http.Request) {
 
 	client := h.peercastClient(servent)
 
-	streamKey := generateStreamKey()
+	streamKey, err := generateStreamKey()
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	accountName := fmt.Sprintf("user_%d", user.ID)
 	if err := client.IssueStreamKey(accountName, streamKey); err != nil {
 		h.Log.Error("issueStreamKey failed", "error", err)

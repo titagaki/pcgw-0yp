@@ -123,6 +123,25 @@ func ListActiveUsers(db *sql.DB, days int) ([]*User, error) {
 	return users, rows.Err()
 }
 
+func SearchUsersByName(db *sql.DB, query string) ([]*User, error) {
+	rows, err := db.Query(
+		`SELECT id, name, image, twitter_id, admin, suspended, bio, notice_checked_at, logged_on_at, created_at FROM users WHERE name LIKE ? ORDER BY name`, "%"+query+"%",
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var users []*User
+	for rows.Next() {
+		u := &User{}
+		if err := rows.Scan(&u.ID, &u.Name, &u.Image, &u.TwitterID, &u.Admin, &u.Suspended, &u.Bio, &u.NoticeCheckedAt, &u.LoggedOnAt, &u.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, rows.Err()
+}
+
 func DeleteUser(db *sql.DB, id int64) error {
 	_, err := db.Exec(`DELETE FROM users WHERE id = ?`, id)
 	return err

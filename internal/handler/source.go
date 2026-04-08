@@ -18,7 +18,7 @@ func (h *Handler) SourceIndex(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) SourceAdd(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
-	name := r.URL.Query().Get("name")
+	name := r.FormValue("name")
 
 	if name == "" {
 		h.flash(w, r, "ソース名を指定してください")
@@ -40,7 +40,7 @@ func (h *Handler) SourceAdd(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) SourceDelete(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
-	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	if err != nil {
 		http.Redirect(w, r, "/sources", http.StatusFound)
 		return
@@ -59,7 +59,7 @@ func (h *Handler) SourceDelete(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) SourceRegen(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
-	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	if err != nil {
 		http.Redirect(w, r, "/sources", http.StatusFound)
 		return

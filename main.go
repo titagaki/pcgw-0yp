@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -53,7 +54,9 @@ func main() {
 	}
 
 	h := handler.New(database, cfg, log)
-	h.StartCleanup()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	h.StartCleanup(ctx)
 
 	sessionMw := middleware.Session(store)
 	authMw := middleware.Auth(database)

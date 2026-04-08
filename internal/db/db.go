@@ -24,7 +24,7 @@ func Open(cfg Config) (*sql.DB, error) {
 	mc.Addr = fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	mc.DBName = cfg.DBName
 	mc.ParseTime = true
-	mc.MultiStatements = true
+	mc.MultiStatements = false
 	mc.Loc = time.Local
 	mc.Params = map[string]string{"charset": "utf8mb4"}
 	mc.Collation = "utf8mb4_general_ci"

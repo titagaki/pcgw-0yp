@@ -13,7 +13,10 @@ func CSRF(next http.Handler) http.Handler {
 		// Generate token if not present
 		if _, ok := session.Values["csrf_token"].(string); !ok {
 			b := make([]byte, 32)
-			rand.Read(b)
+			if _, err := rand.Read(b); err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 			session.Values["csrf_token"] = hex.EncodeToString(b)
 			session.Save(r, w)
 		}

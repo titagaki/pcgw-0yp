@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -11,12 +12,18 @@ const cleanupInterval = 30 * time.Second
 const inactiveTimeout = 15 * time.Minute
 
 // StartCleanup runs periodic channel cleanup in a goroutine.
-func (h *Handler) StartCleanup() {
+// Cancel the returned context to stop the goroutine.
+func (h *Handler) StartCleanup(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(cleanupInterval)
 		defer ticker.Stop()
-		for range ticker.C {
-			h.runCleanup()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				h.runCleanup()
+			}
 		}
 	}()
 }

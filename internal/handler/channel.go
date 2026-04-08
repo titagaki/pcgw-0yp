@@ -55,13 +55,18 @@ func (h *Handler) ChannelShow(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var pushURL string
+	if servent != nil {
+		pushURL = buildRTMPPushURL(servent.Hostname, 1935, ch.StreamKey)
+	}
+
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, channelview.Show(pd, channelview.ShowData{
 		Channel:     ch,
 		ChannelInfo: channelInfo,
 		Servent:     servent,
 		Status:      status,
-		PushURL:     buildRTMPPushURL(servent.Hostname, 1935, ch.StreamKey),
+		PushURL:     pushURL,
 	}))
 }
 
@@ -79,7 +84,7 @@ func (h *Handler) ChannelUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.CurrentUser(r)
-	if user.ID != ch.UserID && !user.Admin {
+	if user == nil || (user.ID != ch.UserID && !user.Admin) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -137,7 +142,7 @@ func (h *Handler) ChannelEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.CurrentUser(r)
-	if user.ID != ch.UserID && !user.Admin {
+	if user == nil || (user.ID != ch.UserID && !user.Admin) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -161,7 +166,7 @@ func (h *Handler) ChannelStop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := middleware.CurrentUser(r)
-	if user.ID != ch.UserID && !user.Admin {
+	if user == nil || (user.ID != ch.UserID && !user.Admin) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -249,6 +254,12 @@ func (h *Handler) ChannelDisconnect(w http.ResponseWriter, r *http.Request) {
 	ch, err := model.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
+		return
+	}
+
+	user := middleware.CurrentUser(r)
+	if user == nil || (user.ID != ch.UserID && !user.Admin) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 

@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	"github.com/titagaki/pcgw-0yp/internal/model"
 )
@@ -46,7 +48,7 @@ func Auth(database *sql.DB) func(http.Handler) http.Handler {
 					next.ServeHTTP(w, r)
 					return
 				}
-				http.Redirect(w, r, "/login?backref="+r.URL.RequestURI(), http.StatusFound)
+				http.Redirect(w, r, "/login?backref="+url.QueryEscape(r.URL.RequestURI()), http.StatusFound)
 				return
 			}
 
@@ -72,7 +74,9 @@ func Auth(database *sql.DB) func(http.Handler) http.Handler {
 				return
 			}
 
-			model.UpdateUserLoggedOn(database, user.ID)
+			if !user.LoggedOnAt.Valid || time.Since(user.LoggedOnAt.Time) > 5*time.Minute {
+				model.UpdateUserLoggedOn(database, user.ID)
+			}
 
 			ctx := context.WithValue(r.Context(), userKey, user)
 			next.ServeHTTP(w, r.WithContext(ctx))

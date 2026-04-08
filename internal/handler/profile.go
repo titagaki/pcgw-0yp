@@ -14,12 +14,7 @@ func (h *Handler) ProfileList(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
 	var users []*model.User
 	if query != "" {
-		all, _ := model.ListUsers(h.DB)
-		for _, u := range all {
-			if containsIgnoreCase(u.Name, query) {
-				users = append(users, u)
-			}
-		}
+		users, _ = model.SearchUsersByName(h.DB, query)
 	} else {
 		users, _ = model.ListActiveUsers(h.DB, 30)
 	}
@@ -75,30 +70,3 @@ func (h *Handler) ProfileUpdate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/profile/edit", http.StatusFound)
 }
 
-func containsIgnoreCase(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 ||
-		func() bool {
-			for i := 0; i <= len(s)-len(substr); i++ {
-				if equalFoldAt(s[i:i+len(substr)], substr) {
-					return true
-				}
-			}
-			return false
-		}())
-}
-
-func equalFoldAt(s, t string) bool {
-	for i := 0; i < len(s); i++ {
-		sr, tr := s[i], t[i]
-		if sr >= 'A' && sr <= 'Z' {
-			sr += 'a' - 'A'
-		}
-		if tr >= 'A' && tr <= 'Z' {
-			tr += 'a' - 'A'
-		}
-		if sr != tr {
-			return false
-		}
-	}
-	return true
-}

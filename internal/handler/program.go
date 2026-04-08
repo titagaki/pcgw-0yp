@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/titagaki/pcgw-0yp/internal/middleware"
 	"github.com/titagaki/pcgw-0yp/internal/model"
 	programview "github.com/titagaki/pcgw-0yp/internal/view/program"
 )
@@ -69,6 +70,12 @@ func (h *Handler) ProgramDelete(w http.ResponseWriter, r *http.Request) {
 	ci, err := model.GetChannelInfo(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
+		return
+	}
+
+	user := middleware.CurrentUser(r)
+	if user == nil || (user.ID != ci.UserID && !user.Admin) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 

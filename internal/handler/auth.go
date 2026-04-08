@@ -47,13 +47,19 @@ func (h *Handler) TwitterLogin(w http.ResponseWriter, r *http.Request) {
 
 	// Generate PKCE code verifier
 	verifier := make([]byte, 32)
-	rand.Read(verifier)
+	if _, err := rand.Read(verifier); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	codeVerifier := hex.EncodeToString(verifier)
 	session.Values["code_verifier"] = codeVerifier
 
 	// Generate state
 	stateBytes := make([]byte, 16)
-	rand.Read(stateBytes)
+	if _, err := rand.Read(stateBytes); err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	state := hex.EncodeToString(stateBytes)
 	session.Values["oauth_state"] = state
 
@@ -154,7 +160,7 @@ func (h *Handler) TwitterCallback(w http.ResponseWriter, r *http.Request) {
 	delete(session.Values, "oauth_backref")
 	session.Save(r, w)
 
-	if backref != "" {
+	if backref != "" && isSafeRedirect(backref) {
 		http.Redirect(w, r, backref, http.StatusFound)
 	} else {
 		http.Redirect(w, r, "/home", http.StatusFound)
@@ -167,6 +173,10 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	session.Options.MaxAge = -1
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func isSafeRedirect(uri string) bool {
+	return strings.HasPrefix(uri, "/") && !strings.HasPrefix(uri, "//")
 }
 
 // buildRTMPPushURL constructs the RTMP push URL for OBS.
