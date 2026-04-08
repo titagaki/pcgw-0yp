@@ -15,3 +15,15 @@ dbname = "pcgw"
 redirect_url = "http://127.0.0.1:8080/auth/twitter/callback"
 
 # 複数のpeercast-miインスタンスはDB上のserventテーブルで管理
+
+[[yp]]
+name = "0yp"
+addr = "pcp://yayaue.me/"
+
+[[yp]]
+name = "SP"
+addr = "pcp://bayonet.ddo.jp:7146/"
+
+[[yp]]
+name = "p@YP"
+addr = "pcp://root.p-at.net/"

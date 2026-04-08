@@ -9,6 +9,10 @@ func FormatTime(t time.Time) string {
 	return t.Format("2006/01/02 15:04")
 }
 
+func FormatDate(t time.Time) string {
+	return t.Format("2006/01/02")
+}
+
 func StatusClass(status string) string {
 	switch status {
 	case "Receiving":

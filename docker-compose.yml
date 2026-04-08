@@ -1,16 +1,18 @@
 services:
-  mysql:
-    image: mysql:8.0
+  mariadb:
+    image: mariadb:10.11
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: pcgw
       MYSQL_USER: pcgw
       MYSQL_PASSWORD: pcgw
+      TZ: Asia/Tokyo
     ports:
       - "3307:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
       - ./db:/docker-entrypoint-initdb.d
+    restart: unless-stopped
 
 volumes:
-  mysql-data:
+  mariadb-data:

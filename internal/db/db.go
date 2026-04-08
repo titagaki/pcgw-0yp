@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -24,6 +25,9 @@ func Open(cfg Config) (*sql.DB, error) {
 	mc.DBName = cfg.DBName
 	mc.ParseTime = true
 	mc.MultiStatements = true
+	mc.Loc = time.Local
+	mc.Params = map[string]string{"charset": "utf8mb4"}
+	mc.Collation = "utf8mb4_general_ci"
 
 	db, err := sql.Open("mysql", mc.FormatDSN())
 	if err != nil {

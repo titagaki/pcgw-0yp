@@ -28,29 +28,34 @@ func Auth(database *sql.DB) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			path := r.URL.Path
 
-			// Top page is public
-			if path == "/" {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			// Check public prefixes
-			for _, prefix := range publicPrefixes {
-				if strings.HasPrefix(path, prefix) {
-					next.ServeHTTP(w, r)
-					return
+			// Determine if this is a public path
+			isPublic := path == "/"
+			if !isPublic {
+				for _, prefix := range publicPrefixes {
+					if strings.HasPrefix(path, prefix) {
+						isPublic = true
+						break
+					}
 				}
 			}
 
 			session := GetSession(r)
 			uid, ok := session.Values["uid"].(int64)
 			if !ok {
+				if isPublic {
+					next.ServeHTTP(w, r)
+					return
+				}
 				http.Redirect(w, r, "/login?backref="+r.URL.RequestURI(), http.StatusFound)
 				return
 			}
 
 			user, err := model.GetUser(database, uid)
 			if err != nil {
+				if isPublic {
+					next.ServeHTTP(w, r)
+					return
+				}
 				// Invalid session
 				session.Values = make(map[interface{}]interface{})
 				session.Save(r, w)
@@ -59,7 +64,11 @@ func Auth(database *sql.DB) func(http.Handler) http.Handler {
 			}
 
 			if user.Suspended {
-				http.Error(w, "アカウントが凍結されています", http.StatusForbidden)
+				if !isPublic {
+					http.Error(w, "アカウントが凍結されています", http.StatusForbidden)
+					return
+				}
+				next.ServeHTTP(w, r)
 				return
 			}
 

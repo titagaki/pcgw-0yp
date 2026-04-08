@@ -16,7 +16,7 @@ templ List(pd view.PageData, notices []*model.Notice) {
 			for _, n := range notices {
 				<div class="box">
 					<h2 class="subtitle"><a href={ templ.SafeURL(fmt.Sprintf("/notices/%d", n.ID)) }>{ n.Title }</a></h2>
-					<p class="is-size-7 has-text-grey">{ view.FormatTime(n.CreatedAt) }</p>
+					<p class="is-size-7 has-text-grey">{ view.FormatDate(n.CreatedAt) }</p>
 				</div>
 			}
 		} else {

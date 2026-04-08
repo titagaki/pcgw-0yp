@@ -68,10 +68,6 @@ func NewRouter(h *handler.Handler, sessionMiddleware func(http.Handler) http.Han
 	r.Post("/channels/{id}/connections/{connID}/disconnect", h.ChannelDisconnect)
 	r.Get("/channels/{id}/status.json", h.ChannelStatusJSON)
 
-	// Notices
-	r.Get("/notices", h.NoticeIndex)
-	r.Get("/notices/{id}", h.NoticeShow)
-
 	// Sources
 	r.Get("/sources", h.SourceIndex)
 	r.Get("/sources/add", h.SourceAdd)
@@ -107,7 +103,8 @@ func NewRouter(h *handler.Handler, sessionMiddleware func(http.Handler) http.Han
 	})
 
 	r.Route("/notices", func(r chi.Router) {
-		// Notice viewing is for all users, but creation/editing requires admin
+		r.Get("/", h.NoticeIndex)
+		r.Get("/{id}", h.NoticeShow)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.RequireAdmin)
 			r.Get("/new", h.NoticeNew)

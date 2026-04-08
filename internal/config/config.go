@@ -10,6 +10,12 @@ type Config struct {
 	Server  ServerConfig  `toml:"server"`
 	DB      DBConfig      `toml:"db"`
 	Twitter TwitterConfig `toml:"twitter"`
+	YP      []YPConfig    `toml:"yp"`
+}
+
+type YPConfig struct {
+	Name string `toml:"name"`
+	Addr string `toml:"addr"`
 }
 
 type ServerConfig struct {
