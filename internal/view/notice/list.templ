@@ -2,11 +2,11 @@ package notice
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ List(pd view.PageData, notices []*model.Notice) {
+templ List(pd view.PageData, notices []*domain.Notice) {
 	@view.Layout(pd) {
 		<h1 class="title">お知らせ</h1>
 		if pd.User != nil && pd.User.Admin {

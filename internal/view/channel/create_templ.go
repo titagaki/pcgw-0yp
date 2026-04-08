@@ -10,15 +10,15 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
 type CreateData struct {
-	Template *model.ChannelInfo
-	Servents []*model.Servent
-	Sources  []*model.Source
+	Template *domain.ChannelInfo
+	Servents []*domain.Servent
+	Sources  []*domain.Source
 	YPs      []peercast.YellowPage
 }
 
@@ -73,7 +73,7 @@ func Create(pd view.PageData, d CreateData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *model.ChannelInfo) string { return c.Channel }))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Channel }))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/view/channel/create.templ`, Line: 25, Col: 141}
 			}
@@ -86,7 +86,7 @@ func Create(pd view.PageData, d CreateData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *model.ChannelInfo) string { return c.Genre }))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Genre }))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/view/channel/create.templ`, Line: 31, Col: 132}
 			}
@@ -99,7 +99,7 @@ func Create(pd view.PageData, d CreateData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *model.ChannelInfo) string { return c.Description }))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Description }))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/view/channel/create.templ`, Line: 37, Col: 137}
 			}
@@ -112,7 +112,7 @@ func Create(pd view.PageData, d CreateData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *model.ChannelInfo) string { return c.Comment }))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Comment }))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/view/channel/create.templ`, Line: 43, Col: 136}
 			}
@@ -125,7 +125,7 @@ func Create(pd view.PageData, d CreateData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *model.ChannelInfo) string { return c.URL }))
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ciField(d.Template, func(c *domain.ChannelInfo) string { return c.URL }))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/view/channel/create.templ`, Line: 49, Col: 127}
 			}

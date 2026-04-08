@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 )
 
 func (h *Handler) APIChannelStatus(w http.ResponseWriter, r *http.Request) {
@@ -18,8 +18,7 @@ func (h *Handler) APIChannelStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// servent ごとにチャンネル一覧を取得し、名前で探す
-	servents, _ := model.ListEnabledServents(h.DB)
+	servents, _ := repository.ListEnabledServents(h.DB)
 	for _, servent := range servents {
 		client := h.peercastClient(servent)
 		entries, err := client.GetChannels()
@@ -44,8 +43,8 @@ func (h *Handler) APIChannelStatus(w http.ResponseWriter, r *http.Request) {
 				"uptime":         entry.Status.Uptime,
 				"isBroadcasting": entry.Status.IsBroadcasting,
 			}
-			if ch, err := model.GetChannelByGnuID(h.DB, entry.ChannelID); err == nil {
-				if ci, err := model.GetChannelInfoByChannelID(h.DB, ch.ID); err == nil {
+			if ch, err := repository.GetChannelByGnuID(h.DB, entry.ChannelID); err == nil {
+				if ci, err := repository.GetChannelInfoByChannelID(h.DB, ch.ID); err == nil {
 					result["streamType"] = ci.StreamType
 				}
 			}

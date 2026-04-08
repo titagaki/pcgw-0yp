@@ -28,12 +28,14 @@ go vet ./...                   # 静的解析
 
 - `internal/config/` - TOML設定読み込み
 - `internal/db/` - DB接続・スキーマ (MySQL, InnoDB)
-- `internal/model/` - データアクセス層 (関数ベース, `func XxxModel(db *sql.DB, ...) error`)
+- `internal/domain/` - エンティティ (構造体定義のみ、依存なし)
+- `internal/repository/` - データアクセス層 (関数ベース, `func Xxx(db *sql.DB, ...) error`)
+- `internal/usecase/` - ビジネスロジック (配信開始・停止・クリーンアップ等)
 - `internal/peercast/` - peercast-mi JSON-RPCクライアント
 - `internal/handler/` - HTTPハンドラー (`Handler` 構造体のメソッド)
 - `internal/middleware/` - セッション・認証・CSRF
 - `internal/server/` - ルーティング定義
-- `internal/view/` - テンプレート関数
+- `internal/view/` - テンプレート (templ)
 - `templates/` - HTMLテンプレート (layout + content パターン)
 - `public/` - 静的ファイル
 - `docs/` - 詳細ドキュメント
@@ -46,18 +48,25 @@ go vet ./...                   # 静的解析
 
 ### ハンドラー
 - `Handler` 構造体のメソッドとして定義
-- `h.render(w, r, "template.html", data)` でレンダリング
+- `h.renderTempl(w, r, component)` でレンダリング
 - `h.flash(w, r, "msg")` でフラッシュメッセージ
 - `middleware.CurrentUser(r)` で現在ユーザー取得
+- 単純なCRUDは `repository` を直接呼ぶ。複雑なオーケストレーションは `usecase` 経由
 
-### モデル
+### ドメイン (domain)
+- 構造体定義のみ。外部依存なし
+
+### リポジトリ (repository)
 - グローバル状態なし。`*sql.DB` を第1引数で受け取る
 - エラーはそのまま返す (ハンドラー側で処理)
 
+### ユースケース (usecase)
+- 複数の repository/peercast 呼び出しを組み合わせたビジネスロジック
+- 配信開始 (`StartBroadcast`)、停止 (`StopChannel`)、クリーンアップ (`RunCleanup`) 等
+
 ### テンプレート
-- `{{define "content"}}...{{end}}{{template "layout" .}}` パターン
-- データは `map[string]interface{}` で渡す
-- `.User`, `.LoggedIn`, `.CSRFToken` は `render()` が自動注入
+- templ コンポーネントベース
+- `view.PageData` に `.User`, `.LoggedIn`, `.CSRFToken` を `pageData()` が自動注入
 
 ### PeerCast API 呼び出し
 - `h.peercastClient(servent)` でクライアント取得

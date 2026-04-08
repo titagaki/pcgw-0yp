@@ -2,15 +2,15 @@ package channel
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
 type CreateData struct {
-	Template *model.ChannelInfo
-	Servents []*model.Servent
-	Sources  []*model.Source
+	Template *domain.ChannelInfo
+	Servents []*domain.Servent
+	Sources  []*domain.Source
 	YPs      []peercast.YellowPage
 }
 
@@ -22,31 +22,31 @@ templ Create(pd view.PageData, d CreateData) {
 			<div class="field">
 				<label class="label">チャンネル名</label>
 				<div class="control">
-					<input class="input" type="text" name="channel_name" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Channel }) } required maxlength="255"/>
+					<input class="input" type="text" name="channel_name" value={ ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Channel }) } required maxlength="255"/>
 				</div>
 			</div>
 			<div class="field">
 				<label class="label">ジャンル</label>
 				<div class="control">
-					<input class="input" type="text" name="genre" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Genre }) } maxlength="255"/>
+					<input class="input" type="text" name="genre" value={ ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Genre }) } maxlength="255"/>
 				</div>
 			</div>
 			<div class="field">
 				<label class="label">説明</label>
 				<div class="control">
-					<input class="input" type="text" name="desc" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Description }) } maxlength="255"/>
+					<input class="input" type="text" name="desc" value={ ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Description }) } maxlength="255"/>
 				</div>
 			</div>
 			<div class="field">
 				<label class="label">コメント</label>
 				<div class="control">
-					<input class="input" type="text" name="comment" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.Comment }) } maxlength="255"/>
+					<input class="input" type="text" name="comment" value={ ciField(d.Template, func(c *domain.ChannelInfo) string { return c.Comment }) } maxlength="255"/>
 				</div>
 			</div>
 			<div class="field">
 				<label class="label">コンタクトURL</label>
 				<div class="control">
-					<input class="input" type="url" name="url" value={ ciField(d.Template, func(c *model.ChannelInfo) string { return c.URL }) }/>
+					<input class="input" type="url" name="url" value={ ciField(d.Template, func(c *domain.ChannelInfo) string { return c.URL }) }/>
 				</div>
 			</div>
 			<div class="field">

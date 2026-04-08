@@ -2,12 +2,12 @@ package channel
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Connections(pd view.PageData, ch *model.Channel, conns []peercast.Connection) {
+templ Connections(pd view.PageData, ch *domain.Channel, conns []peercast.Connection) {
 	@view.Layout(pd) {
 		<h1 class="title">接続一覧</h1>
 		<a class="button mb-4" href={ templ.SafeURL(fmt.Sprintf("/channels/%d", ch.ID)) }>戻る</a>

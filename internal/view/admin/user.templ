@@ -2,11 +2,11 @@ package admin
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ UserShow(pd view.PageData, u *model.User) {
+templ UserShow(pd view.PageData, u *domain.User) {
 	@view.Layout(pd) {
 		<h1 class="title">{ u.Name }</h1>
 		<table class="table">
@@ -27,7 +27,7 @@ templ UserShow(pd view.PageData, u *model.User) {
 	}
 }
 
-templ UserEdit(pd view.PageData, u *model.User) {
+templ UserEdit(pd view.PageData, u *domain.User) {
 	@view.Layout(pd) {
 		<h1 class="title">ユーザー編集: { u.Name }</h1>
 		<form method="post" action={ templ.SafeURL(fmt.Sprintf("/users/%d", u.ID)) }>

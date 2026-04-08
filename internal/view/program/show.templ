@@ -2,11 +2,11 @@ package program
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Show(pd view.PageData, p *model.ChannelInfo, programUser *model.User) {
+templ Show(pd view.PageData, p *domain.ChannelInfo, programUser *domain.User) {
 	@view.Layout(pd) {
 		<h1 class="title">{ p.Channel }</h1>
 		<div class="box">

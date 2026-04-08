@@ -2,11 +2,11 @@ package program
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Recent(pd view.PageData, programs []*model.ChannelInfo) {
+templ Recent(pd view.PageData, programs []*domain.ChannelInfo) {
 	@view.Layout(pd) {
 		<h1 class="title">最近の配信</h1>
 		if len(programs) > 0 {

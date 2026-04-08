@@ -8,12 +8,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
+	"github.com/titagaki/pcgw-0yp/internal/usecase"
 	channelview "github.com/titagaki/pcgw-0yp/internal/view/channel"
 )
 
 func (h *Handler) ChannelList(w http.ResponseWriter, r *http.Request) {
-	channels, _ := model.ListChannels(h.DB)
+	channels, _ := repository.ListChannels(h.DB)
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, channelview.List(pd, channels))
 }
@@ -25,7 +26,7 @@ func (h *Handler) ChannelShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -37,8 +38,8 @@ func (h *Handler) ChannelShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
-	channelInfo, _ := model.GetChannelInfoByChannelID(h.DB, ch.ID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
+	channelInfo, _ := repository.GetChannelInfoByChannelID(h.DB, ch.ID)
 
 	var status *channelview.StatusData
 	if servent != nil {
@@ -50,7 +51,7 @@ func (h *Handler) ChannelShow(w http.ResponseWriter, r *http.Request) {
 				Connections: conns,
 			}
 			if cs.IsReceiving {
-				model.UpdateChannelLastActive(h.DB, ch.ID)
+				repository.UpdateChannelLastActive(h.DB, ch.ID)
 			}
 		}
 	}
@@ -77,7 +78,7 @@ func (h *Handler) ChannelUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -100,28 +101,10 @@ func (h *Handler) ChannelUpdate(w http.ResponseWriter, r *http.Request) {
 	comment := r.FormValue("comment")
 	contactURL := r.FormValue("url")
 
-	// Update on PeerCast
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
 	if servent != nil {
 		client := h.peercastClient(servent)
-		info := map[string]interface{}{
-			"name":    name,
-			"genre":   genre,
-			"desc":    desc,
-			"comment": comment,
-			"url":     contactURL,
-		}
-		track := map[string]interface{}{
-			"creator": user.Name,
-		}
-		if err := client.SetChannelInfo(ch.GnuID, info, track); err != nil {
-			h.Log.Error("setChannelInfo failed", "error", err)
-		}
-	}
-
-	// Update channel info in DB
-	if ci, err := model.GetChannelInfoByChannelID(h.DB, ch.ID); err == nil {
-		model.UpdateChannelInfo(h.DB, ci.ID, name, genre, desc, comment, contactURL)
+		usecase.UpdateChannelOnPeerCast(h.DB, h.Log, client, ch, user.Name, name, genre, desc, comment, contactURL)
 	}
 
 	h.flash(w, r, "チャンネル情報を更新しました")
@@ -135,7 +118,7 @@ func (h *Handler) ChannelEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -147,7 +130,7 @@ func (h *Handler) ChannelEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelInfo, _ := model.GetChannelInfoByChannelID(h.DB, ch.ID)
+	channelInfo, _ := repository.GetChannelInfoByChannelID(h.DB, ch.ID)
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, channelview.Edit(pd, ch, channelInfo))
 }
@@ -159,7 +142,7 @@ func (h *Handler) ChannelStop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -171,15 +154,13 @@ func (h *Handler) ChannelStop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Stop on PeerCast
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
 	if servent != nil {
 		client := h.peercastClient(servent)
-		client.StopChannel(ch.GnuID)
-		client.RevokeStreamKey(fmt.Sprintf("user_%d", ch.UserID))
+		usecase.StopChannel(h.DB, client, ch)
+	} else {
+		repository.DeleteChannel(h.DB, ch.ID)
 	}
-
-	model.DeleteChannel(h.DB, ch.ID)
 
 	h.flash(w, r, "配信を停止しました")
 	http.Redirect(w, r, "/home", http.StatusFound)
@@ -192,13 +173,13 @@ func (h *Handler) ChannelRelayTree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
 	if servent == nil {
 		http.NotFound(w, r)
 		return
@@ -222,13 +203,13 @@ func (h *Handler) ChannelConnections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
 	if servent == nil {
 		http.NotFound(w, r)
 		return
@@ -251,7 +232,7 @@ func (h *Handler) ChannelDisconnect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -269,7 +250,7 @@ func (h *Handler) ChannelDisconnect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
 	if servent != nil {
 		client := h.peercastClient(servent)
 		client.StopChannelConnection(ch.GnuID, connID)
@@ -285,13 +266,13 @@ func (h *Handler) ChannelStatusJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch, err := model.GetChannel(h.DB, id)
+	ch, err := repository.GetChannel(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	servent, _ := model.GetServent(h.DB, ch.ServentID)
+	servent, _ := repository.GetServent(h.DB, ch.ServentID)
 	if servent == nil {
 		http.NotFound(w, r)
 		return
@@ -306,7 +287,7 @@ func (h *Handler) ChannelStatusJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if cs.IsReceiving {
-		model.UpdateChannelLastActive(h.DB, ch.ID)
+		repository.UpdateChannelLastActive(h.DB, ch.ID)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

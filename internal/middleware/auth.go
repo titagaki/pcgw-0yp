@@ -8,7 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 )
 
 const userKey contextKey = "user"
@@ -52,7 +53,7 @@ func Auth(database *sql.DB) func(http.Handler) http.Handler {
 				return
 			}
 
-			user, err := model.GetUser(database, uid)
+			user, err := repository.GetUser(database, uid)
 			if err != nil {
 				if isPublic {
 					next.ServeHTTP(w, r)
@@ -75,7 +76,7 @@ func Auth(database *sql.DB) func(http.Handler) http.Handler {
 			}
 
 			if !user.LoggedOnAt.Valid || time.Since(user.LoggedOnAt.Time) > 5*time.Minute {
-				model.UpdateUserLoggedOn(database, user.ID)
+				repository.UpdateUserLoggedOn(database, user.ID)
 			}
 
 			ctx := context.WithValue(r.Context(), userKey, user)
@@ -95,8 +96,8 @@ func RequireAdmin(next http.Handler) http.Handler {
 	})
 }
 
-func CurrentUser(r *http.Request) *model.User {
-	user, _ := r.Context().Value(userKey).(*model.User)
+func CurrentUser(r *http.Request) *domain.User {
+	user, _ := r.Context().Value(userKey).(*domain.User)
 	return user
 }
 

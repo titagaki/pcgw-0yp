@@ -6,9 +6,10 @@ import (
 	"net/http"
 
 	"github.com/titagaki/pcgw-0yp/internal/config"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
-	"github.com/titagaki/pcgw-0yp/internal/model"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 
 	"github.com/a-h/templ"
@@ -36,7 +37,7 @@ func (h *Handler) pageData(r *http.Request, w http.ResponseWriter) view.PageData
 	}
 
 	if pd.User != nil {
-		pd.HasUnreadNotices, _ = model.HasUnreadNotices(h.DB, pd.User.ID)
+		pd.HasUnreadNotices, _ = repository.HasUnreadNotices(h.DB, pd.User.ID)
 	}
 
 	pd.Flashes = h.getFlashStrings(r, w)
@@ -72,6 +73,6 @@ func (h *Handler) getFlashStrings(r *http.Request, w http.ResponseWriter) []stri
 	return result
 }
 
-func (h *Handler) peercastClient(s *model.Servent) *peercast.Client {
+func (h *Handler) peercastClient(s *domain.Servent) *peercast.Client {
 	return peercast.NewClient(s.Hostname, s.Port, s.AuthID, s.Passwd)
 }

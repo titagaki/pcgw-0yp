@@ -2,11 +2,11 @@ package admin
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ ServentList(pd view.PageData, servents []*model.Servent) {
+templ ServentList(pd view.PageData, servents []*domain.Servent) {
 	@view.Layout(pd) {
 		<h1 class="title">サーバント管理</h1>
 		if len(servents) > 0 {

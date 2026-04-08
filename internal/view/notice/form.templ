@@ -2,7 +2,7 @@ package notice
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
@@ -18,7 +18,7 @@ templ New(pd view.PageData) {
 	}
 }
 
-templ Edit(pd view.PageData, n *model.Notice) {
+templ Edit(pd view.PageData, n *domain.Notice) {
 	@view.Layout(pd) {
 		<h1 class="title">お知らせ編集</h1>
 		<form method="post" action={ templ.SafeURL(fmt.Sprintf("/notices/%d/update", n.ID)) }>

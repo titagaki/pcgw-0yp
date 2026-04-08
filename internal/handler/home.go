@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 	"github.com/titagaki/pcgw-0yp/internal/view/page"
 )
 
@@ -24,8 +24,8 @@ func (h *Handler) DescPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) HomePage(w http.ResponseWriter, r *http.Request) {
 	user := middleware.CurrentUser(r)
-	channels, _ := model.ListChannelsByUser(h.DB, user.ID)
-	recentInfos, _ := model.ListChannelInfosByUser(h.DB, user.ID, 10)
+	channels, _ := repository.ListChannelsByUser(h.DB, user.ID)
+	recentInfos, _ := repository.ListChannelInfosByUser(h.DB, user.ID, 10)
 
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, page.Home(pd, channels, recentInfos))

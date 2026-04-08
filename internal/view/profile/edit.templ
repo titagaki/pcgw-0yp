@@ -1,11 +1,11 @@
 package profile
 
 import (
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Edit(pd view.PageData, profileUser *model.User) {
+templ Edit(pd view.PageData, profileUser *domain.User) {
 	@view.Layout(pd) {
 		<h1 class="title">プロフィール編集</h1>
 		<form method="post" action="/profile/edit">

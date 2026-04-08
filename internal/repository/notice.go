@@ -1,20 +1,14 @@
-package model
+package repository
 
 import (
 	"database/sql"
 	"time"
+
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 )
 
-type Notice struct {
-	ID        int64
-	Title     string
-	Body      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func GetNotice(db *sql.DB, id int64) (*Notice, error) {
-	n := &Notice{}
+func GetNotice(db *sql.DB, id int64) (*domain.Notice, error) {
+	n := &domain.Notice{}
 	err := db.QueryRow(
 		`SELECT id, title, body, created_at, updated_at FROM notices WHERE id = ?`, id,
 	).Scan(&n.ID, &n.Title, &n.Body, &n.CreatedAt, &n.UpdatedAt)
@@ -24,15 +18,15 @@ func GetNotice(db *sql.DB, id int64) (*Notice, error) {
 	return n, nil
 }
 
-func ListNotices(db *sql.DB) ([]*Notice, error) {
+func ListNotices(db *sql.DB) ([]*domain.Notice, error) {
 	rows, err := db.Query(`SELECT id, title, body, created_at, updated_at FROM notices ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var notices []*Notice
+	var notices []*domain.Notice
 	for rows.Next() {
-		n := &Notice{}
+		n := &domain.Notice{}
 		if err := rows.Scan(&n.ID, &n.Title, &n.Body, &n.CreatedAt, &n.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -49,7 +43,7 @@ func HasUnreadNotices(db *sql.DB, userID int64) (bool, error) {
 	return count > 0, err
 }
 
-func CreateNotice(db *sql.DB, title, body string) (*Notice, error) {
+func CreateNotice(db *sql.DB, title, body string) (*domain.Notice, error) {
 	now := time.Now()
 	result, err := db.Exec(`INSERT INTO notices (title, body, created_at, updated_at) VALUES (?, ?, ?, ?)`, title, body, now, now)
 	if err != nil {

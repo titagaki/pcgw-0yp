@@ -1,26 +1,13 @@
-package model
+package repository
 
 import (
 	"database/sql"
+
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 )
 
-type Servent struct {
-	ID          int64
-	Name        string
-	Description string
-	Hostname    string
-	Port        int
-	AuthID      string
-	Passwd      string
-	Priority    int
-	MaxChannels int
-	Enabled     bool
-	Agent       string
-	YellowPages string
-}
-
-func GetServent(db *sql.DB, id int64) (*Servent, error) {
-	s := &Servent{}
+func GetServent(db *sql.DB, id int64) (*domain.Servent, error) {
+	s := &domain.Servent{}
 	err := db.QueryRow(
 		`SELECT id, name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled, agent, yellow_pages FROM servents WHERE id = ?`, id,
 	).Scan(&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port, &s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels, &s.Enabled, &s.Agent, &s.YellowPages)
@@ -30,7 +17,7 @@ func GetServent(db *sql.DB, id int64) (*Servent, error) {
 	return s, nil
 }
 
-func ListServents(db *sql.DB) ([]*Servent, error) {
+func ListServents(db *sql.DB) ([]*domain.Servent, error) {
 	rows, err := db.Query(
 		`SELECT id, name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled, agent, yellow_pages FROM servents ORDER BY priority, id`,
 	)
@@ -38,9 +25,9 @@ func ListServents(db *sql.DB) ([]*Servent, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var servents []*Servent
+	var servents []*domain.Servent
 	for rows.Next() {
-		s := &Servent{}
+		s := &domain.Servent{}
 		if err := rows.Scan(&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port, &s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels, &s.Enabled, &s.Agent, &s.YellowPages); err != nil {
 			return nil, err
 		}
@@ -49,7 +36,7 @@ func ListServents(db *sql.DB) ([]*Servent, error) {
 	return servents, rows.Err()
 }
 
-func ListEnabledServents(db *sql.DB) ([]*Servent, error) {
+func ListEnabledServents(db *sql.DB) ([]*domain.Servent, error) {
 	rows, err := db.Query(
 		`SELECT id, name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled, agent, yellow_pages FROM servents WHERE enabled = 1 ORDER BY priority, id`,
 	)
@@ -57,9 +44,9 @@ func ListEnabledServents(db *sql.DB) ([]*Servent, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var servents []*Servent
+	var servents []*domain.Servent
 	for rows.Next() {
-		s := &Servent{}
+		s := &domain.Servent{}
 		if err := rows.Scan(&s.ID, &s.Name, &s.Description, &s.Hostname, &s.Port, &s.AuthID, &s.Passwd, &s.Priority, &s.MaxChannels, &s.Enabled, &s.Agent, &s.YellowPages); err != nil {
 			return nil, err
 		}
@@ -69,12 +56,12 @@ func ListEnabledServents(db *sql.DB) ([]*Servent, error) {
 }
 
 // RequestServentWithVacancy returns an enabled servent with available capacity.
-func RequestServentWithVacancy(db *sql.DB) (*Servent, error) {
-	rows, err := ListEnabledServents(db)
+func RequestServentWithVacancy(db *sql.DB) (*domain.Servent, error) {
+	servents, err := ListEnabledServents(db)
 	if err != nil {
 		return nil, err
 	}
-	for _, s := range rows {
+	for _, s := range servents {
 		count, err := CountChannelsByServent(db, s.ID)
 		if err != nil {
 			return nil, err
@@ -86,7 +73,7 @@ func RequestServentWithVacancy(db *sql.DB) (*Servent, error) {
 	return nil, sql.ErrNoRows
 }
 
-func CreateServent(db *sql.DB, name, description, hostname string, port int, authID, passwd string, priority, maxChannels int, enabled bool) (*Servent, error) {
+func CreateServent(db *sql.DB, name, description, hostname string, port int, authID, passwd string, priority, maxChannels int, enabled bool) (*domain.Servent, error) {
 	result, err := db.Exec(
 		`INSERT INTO servents (name, description, hostname, port, auth_id, passwd, priority, max_channels, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		name, description, hostname, port, authID, passwd, priority, maxChannels, enabled,

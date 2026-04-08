@@ -2,11 +2,11 @@ package profile
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Show(pd view.PageData, profileUser *model.User, channels []*model.Channel, recentInfos []*model.ChannelInfo) {
+templ Show(pd view.PageData, profileUser *domain.User, channels []*domain.Channel, recentInfos []*domain.ChannelInfo) {
 	@view.Layout(pd) {
 		<h1 class="title">
 			if profileUser.Image != "" {

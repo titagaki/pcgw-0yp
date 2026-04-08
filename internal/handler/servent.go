@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/titagaki/pcgw-0yp/internal/model"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 	adminview "github.com/titagaki/pcgw-0yp/internal/view/admin"
 )
 
 func (h *Handler) ServentIndex(w http.ResponseWriter, r *http.Request) {
-	servents, _ := model.ListServents(h.DB)
+	servents, _ := repository.ListServents(h.DB)
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, adminview.ServentList(pd, servents))
 }
@@ -24,7 +24,7 @@ func (h *Handler) ServentShow(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	servent, err := model.GetServent(h.DB, id)
+	servent, err := repository.GetServent(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -62,7 +62,7 @@ func (h *Handler) ServentCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := model.CreateServent(h.DB, name, desc, hostname, port, authID, passwd, priority, maxChannels, enabled)
+	_, err := repository.CreateServent(h.DB, name, desc, hostname, port, authID, passwd, priority, maxChannels, enabled)
 	if err != nil {
 		h.flash(w, r, "作成に失敗しました: "+err.Error())
 		http.Redirect(w, r, "/servents", http.StatusFound)
@@ -95,7 +95,7 @@ func (h *Handler) ServentUpdate(w http.ResponseWriter, r *http.Request) {
 	maxChannels, _ := strconv.Atoi(r.FormValue("max_channels"))
 	enabled := r.FormValue("enabled") == "on"
 
-	if err := model.UpdateServent(h.DB, id, name, desc, hostname, port, authID, passwd, priority, maxChannels, enabled); err != nil {
+	if err := repository.UpdateServent(h.DB, id, name, desc, hostname, port, authID, passwd, priority, maxChannels, enabled); err != nil {
 		h.flash(w, r, "更新に失敗しました: "+err.Error())
 	} else {
 		h.flash(w, r, "サーバントを更新しました")
@@ -110,7 +110,7 @@ func (h *Handler) ServentDelete(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	model.DeleteServent(h.DB, id)
+	repository.DeleteServent(h.DB, id)
 	h.flash(w, r, "サーバントを削除しました")
 	http.Redirect(w, r, "/servents", http.StatusFound)
 }
@@ -122,7 +122,7 @@ func (h *Handler) ServentRefresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	servent, err := model.GetServent(h.DB, id)
+	servent, err := repository.GetServent(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -142,7 +142,7 @@ func (h *Handler) ServentRefresh(w http.ResponseWriter, r *http.Request) {
 		ypNames = append(ypNames, yp.Name)
 	}
 
-	model.UpdateServentAgent(h.DB, id, versionInfo.AgentName, strings.Join(ypNames, " "))
+	repository.UpdateServentAgent(h.DB, id, versionInfo.AgentName, strings.Join(ypNames, " "))
 	h.flash(w, r, "サーバー情報を更新しました")
 	http.Redirect(w, r, fmt.Sprintf("/servents/%d", id), http.StatusFound)
 }

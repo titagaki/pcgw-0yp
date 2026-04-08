@@ -3,12 +3,12 @@ package handler
 import (
 	"net/http"
 
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 	"github.com/titagaki/pcgw-0yp/internal/view/page"
 )
 
 func (h *Handler) Stats(w http.ResponseWriter, r *http.Request) {
-	servents, _ := model.ListEnabledServents(h.DB)
+	servents, _ := repository.ListEnabledServents(h.DB)
 
 	var statuses []page.ServentStatus
 	for _, s := range servents {

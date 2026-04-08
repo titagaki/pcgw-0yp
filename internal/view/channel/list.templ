@@ -2,11 +2,11 @@ package channel
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ List(pd view.PageData, channels []*model.Channel) {
+templ List(pd view.PageData, channels []*domain.Channel) {
 	@view.Layout(pd) {
 		<h1 class="title">チャンネル一覧</h1>
 		if len(channels) > 0 {

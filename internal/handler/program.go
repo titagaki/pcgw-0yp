@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 	programview "github.com/titagaki/pcgw-0yp/internal/view/program"
 )
 
@@ -18,7 +18,7 @@ func (h *Handler) ProgramIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ProgramRecent(w http.ResponseWriter, r *http.Request) {
-	infos, _ := model.ListRecentChannelInfos(h.DB, 20)
+	infos, _ := repository.ListRecentChannelInfos(h.DB, 20)
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, programview.Recent(pd, infos))
 }
@@ -35,7 +35,7 @@ func (h *Handler) ProgramByMonth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	infos, _ := model.ListChannelInfosByMonth(h.DB, year, month)
+	infos, _ := repository.ListChannelInfosByMonth(h.DB, year, month)
 
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, programview.Month(pd, year, month, infos))
@@ -48,13 +48,13 @@ func (h *Handler) ProgramShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ci, err := model.GetChannelInfo(h.DB, id)
+	ci, err := repository.GetChannelInfo(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	user, _ := model.GetUser(h.DB, ci.UserID)
+	user, _ := repository.GetUser(h.DB, ci.UserID)
 
 	pd := h.pageData(r, w)
 	h.renderTempl(w, r, programview.Show(pd, ci, user))
@@ -67,7 +67,7 @@ func (h *Handler) ProgramDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ci, err := model.GetChannelInfo(h.DB, id)
+	ci, err := repository.GetChannelInfo(h.DB, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -85,7 +85,7 @@ func (h *Handler) ProgramDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	model.DeleteChannelInfo(h.DB, id)
+	repository.DeleteChannelInfo(h.DB, id)
 	h.flash(w, r, "番組を削除しました")
 	http.Redirect(w, r, "/programs", http.StatusFound)
 }

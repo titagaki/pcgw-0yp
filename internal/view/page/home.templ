@@ -2,11 +2,11 @@ package page
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Home(pd view.PageData, channels []*model.Channel, recentInfos []*model.ChannelInfo) {
+templ Home(pd view.PageData, channels []*domain.Channel, recentInfos []*domain.ChannelInfo) {
 	@view.Layout(pd) {
 		<h1 class="title">ダッシュボード</h1>
 		if len(channels) > 0 {

@@ -1,36 +1,16 @@
-package model
+package repository
 
 import (
 	"database/sql"
 	"time"
+
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 )
-
-type ChannelInfo struct {
-	ID           int64
-	UserID       int64
-	Channel      string
-	Genre        string
-	Description  string
-	Comment      string
-	URL          string
-	StreamType   string
-	YP           string
-	ChannelID    sql.NullInt64
-	ServentID    sql.NullInt64
-	SourceName   string
-	TerminatedAt sql.NullTime
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-}
-
-func (ci *ChannelInfo) IsActive() bool {
-	return ci.ChannelID.Valid && !ci.TerminatedAt.Valid
-}
 
 const channelInfoColumns = `id, user_id, channel, genre, description, comment, url, stream_type, yp, channel_id, servent_id, source_name, terminated_at, created_at, updated_at`
 
-func scanChannelInfo(row interface{ Scan(...interface{}) error }) (*ChannelInfo, error) {
-	ci := &ChannelInfo{}
+func scanChannelInfo(row interface{ Scan(...interface{}) error }) (*domain.ChannelInfo, error) {
+	ci := &domain.ChannelInfo{}
 	err := row.Scan(&ci.ID, &ci.UserID, &ci.Channel, &ci.Genre, &ci.Description, &ci.Comment, &ci.URL, &ci.StreamType, &ci.YP, &ci.ChannelID, &ci.ServentID, &ci.SourceName, &ci.TerminatedAt, &ci.CreatedAt, &ci.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -38,25 +18,25 @@ func scanChannelInfo(row interface{ Scan(...interface{}) error }) (*ChannelInfo,
 	return ci, nil
 }
 
-func GetChannelInfo(db *sql.DB, id int64) (*ChannelInfo, error) {
+func GetChannelInfo(db *sql.DB, id int64) (*domain.ChannelInfo, error) {
 	return scanChannelInfo(db.QueryRow(`SELECT `+channelInfoColumns+` FROM channel_infos WHERE id = ?`, id))
 }
 
-func GetChannelInfoByChannelID(db *sql.DB, channelID int64) (*ChannelInfo, error) {
+func GetChannelInfoByChannelID(db *sql.DB, channelID int64) (*domain.ChannelInfo, error) {
 	return scanChannelInfo(db.QueryRow(`SELECT `+channelInfoColumns+` FROM channel_infos WHERE channel_id = ? ORDER BY id DESC LIMIT 1`, channelID))
 }
 
-func GetLatestChannelInfoByUser(db *sql.DB, userID int64) (*ChannelInfo, error) {
+func GetLatestChannelInfoByUser(db *sql.DB, userID int64) (*domain.ChannelInfo, error) {
 	return scanChannelInfo(db.QueryRow(`SELECT `+channelInfoColumns+` FROM channel_infos WHERE user_id = ? ORDER BY id DESC LIMIT 1`, userID))
 }
 
-func ListChannelInfosByUser(db *sql.DB, userID int64, limit int) ([]*ChannelInfo, error) {
+func ListChannelInfosByUser(db *sql.DB, userID int64, limit int) ([]*domain.ChannelInfo, error) {
 	rows, err := db.Query(`SELECT `+channelInfoColumns+` FROM channel_infos WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`, userID, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var infos []*ChannelInfo
+	var infos []*domain.ChannelInfo
 	for rows.Next() {
 		ci, err := scanChannelInfo(rows)
 		if err != nil {
@@ -67,13 +47,13 @@ func ListChannelInfosByUser(db *sql.DB, userID int64, limit int) ([]*ChannelInfo
 	return infos, rows.Err()
 }
 
-func ListRecentChannelInfos(db *sql.DB, limit int) ([]*ChannelInfo, error) {
+func ListRecentChannelInfos(db *sql.DB, limit int) ([]*domain.ChannelInfo, error) {
 	rows, err := db.Query(`SELECT `+channelInfoColumns+` FROM channel_infos ORDER BY created_at DESC LIMIT ?`, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var infos []*ChannelInfo
+	var infos []*domain.ChannelInfo
 	for rows.Next() {
 		ci, err := scanChannelInfo(rows)
 		if err != nil {
@@ -84,7 +64,7 @@ func ListRecentChannelInfos(db *sql.DB, limit int) ([]*ChannelInfo, error) {
 	return infos, rows.Err()
 }
 
-func ListChannelInfosByMonth(db *sql.DB, year, month int) ([]*ChannelInfo, error) {
+func ListChannelInfosByMonth(db *sql.DB, year, month int) ([]*domain.ChannelInfo, error) {
 	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
 	end := start.AddDate(0, 1, 0)
 	rows, err := db.Query(`SELECT `+channelInfoColumns+` FROM channel_infos WHERE created_at >= ? AND created_at < ? ORDER BY created_at DESC`, start, end)
@@ -92,7 +72,7 @@ func ListChannelInfosByMonth(db *sql.DB, year, month int) ([]*ChannelInfo, error
 		return nil, err
 	}
 	defer rows.Close()
-	var infos []*ChannelInfo
+	var infos []*domain.ChannelInfo
 	for rows.Next() {
 		ci, err := scanChannelInfo(rows)
 		if err != nil {
@@ -103,7 +83,7 @@ func ListChannelInfosByMonth(db *sql.DB, year, month int) ([]*ChannelInfo, error
 	return infos, rows.Err()
 }
 
-func CreateChannelInfo(db *sql.DB, userID int64, channel, genre, desc, comment, url, streamType, yp string, channelID, serventID sql.NullInt64, sourceName string) (*ChannelInfo, error) {
+func CreateChannelInfo(db *sql.DB, userID int64, channel, genre, desc, comment, url, streamType, yp string, channelID, serventID sql.NullInt64, sourceName string) (*domain.ChannelInfo, error) {
 	now := time.Now()
 	result, err := db.Exec(
 		`INSERT INTO channel_infos (user_id, channel, genre, description, comment, url, stream_type, yp, channel_id, servent_id, source_name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

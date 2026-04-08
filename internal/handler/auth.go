@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/titagaki/pcgw-0yp/internal/middleware"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/repository"
 	"github.com/titagaki/pcgw-0yp/internal/view/page"
 	"golang.org/x/oauth2"
 )
@@ -130,14 +130,14 @@ func (h *Handler) TwitterCallback(w http.ResponseWriter, r *http.Request) {
 	imageURL := strings.Replace(twitterUser.Data.ProfileImageURL, "_normal", "_200x200", 1)
 
 	// Find or create user
-	user, err := model.GetUserByTwitterID(h.DB, twitterUser.Data.ID)
+	user, err := repository.GetUserByTwitterID(h.DB, twitterUser.Data.ID)
 	if err == sql.ErrNoRows {
 		// New user
 		name := twitterUser.Data.Name
 		if name == "" {
 			name = twitterUser.Data.Username
 		}
-		user, err = model.CreateUser(h.DB, name, imageURL, twitterUser.Data.ID)
+		user, err = repository.CreateUser(h.DB, name, imageURL, twitterUser.Data.ID)
 		if err != nil {
 			h.Log.Error("user create failed", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -149,7 +149,7 @@ func (h *Handler) TwitterCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		// Update profile image
-		model.UpdateUser(h.DB, user.ID, user.Name, imageURL, user.Bio)
+		repository.UpdateUser(h.DB, user.ID, user.Name, imageURL, user.Bio)
 	}
 
 	// Set session

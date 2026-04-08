@@ -8,10 +8,10 @@ package view
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/titagaki/pcgw-0yp/internal/model"
+import "github.com/titagaki/pcgw-0yp/internal/domain"
 
 type PageData struct {
-	User             *model.User
+	User             *domain.User
 	LoggedIn         bool
 	CSRFToken        string
 	HasUnreadNotices bool

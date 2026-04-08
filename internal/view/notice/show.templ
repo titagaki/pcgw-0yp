@@ -2,11 +2,11 @@ package notice
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Show(pd view.PageData, n *model.Notice) {
+templ Show(pd view.PageData, n *domain.Notice) {
 	@view.Layout(pd) {
 		<h1 class="title">{ n.Title }</h1>
 		<p class="is-size-7 has-text-grey mb-4">{ view.FormatTime(n.CreatedAt) }</p>

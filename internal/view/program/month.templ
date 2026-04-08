@@ -2,11 +2,11 @@ package program
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Month(pd view.PageData, year, month int, programs []*model.ChannelInfo) {
+templ Month(pd view.PageData, year, month int, programs []*domain.ChannelInfo) {
 	@view.Layout(pd) {
 		<h1 class="title">{ fmt.Sprintf("%d年%d月", year, month) }</h1>
 		<div class="buttons mb-4">

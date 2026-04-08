@@ -2,12 +2,12 @@ package admin
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/peercast"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ ServentShow(pd view.PageData, s *model.Servent, channels []peercast.ChannelEntry) {
+templ ServentShow(pd view.PageData, s *domain.Servent, channels []peercast.ChannelEntry) {
 	@view.Layout(pd) {
 		<h1 class="title">{ s.Name }</h1>
 		<div class="box">

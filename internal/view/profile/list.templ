@@ -2,11 +2,11 @@ package profile
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ List(pd view.PageData, users []*model.User, query string) {
+templ List(pd view.PageData, users []*domain.User, query string) {
 	@view.Layout(pd) {
 		<h1 class="title">ユーザー</h1>
 		<form method="get" action="/profile" class="mb-4">

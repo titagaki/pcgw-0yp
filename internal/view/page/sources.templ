@@ -2,11 +2,11 @@ package page
 
 import (
 	"fmt"
-	"github.com/titagaki/pcgw-0yp/internal/model"
+	"github.com/titagaki/pcgw-0yp/internal/domain"
 	"github.com/titagaki/pcgw-0yp/internal/view"
 )
 
-templ Sources(pd view.PageData, sources []*model.Source) {
+templ Sources(pd view.PageData, sources []*domain.Source) {
 	@view.Layout(pd) {
 		<h1 class="title">ソース管理</h1>
 		if len(sources) > 0 {
